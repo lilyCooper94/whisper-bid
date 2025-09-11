@@ -33,19 +33,24 @@ This guide provides step-by-step instructions for deploying the Whisper Bid appl
 - **Install Command**: `npm install` (should auto-detect)
 
 #### Environment Variables (Optional but Recommended):
-Click "Add Environment Variable" and add the following:
+**Note**: Environment variables are optional. The application will work without them, but adding them will enhance functionality.
 
-1. **VITE_WALLETCONNECT_PROJECT_ID**
+Click "Add Environment Variable" and add the following if desired:
+
+1. **VITE_WALLETCONNECT_PROJECT_ID** (Optional)
    - Value: Your WalletConnect Project ID (get from [cloud.walletconnect.com](https://cloud.walletconnect.com))
    - Environment: Production, Preview, Development
+   - **Note**: If not provided, the app will use default WalletConnect settings
 
-2. **VITE_RPC_URL**
+2. **VITE_RPC_URL** (Optional)
    - Value: Your preferred RPC URL (e.g., `https://sepolia.infura.io/v3/YOUR_PROJECT_ID`)
    - Environment: Production, Preview, Development
+   - **Note**: If not provided, the app will use public RPC endpoints
 
-3. **VITE_CHAIN_ID**
+3. **VITE_CHAIN_ID** (Optional)
    - Value: `11155111` (for Sepolia testnet) or `1` (for Ethereum mainnet)
    - Environment: Production, Preview, Development
+   - **Note**: If not provided, the app will default to Sepolia testnet
 
 ### 4. Deploy the Application
 
