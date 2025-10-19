@@ -122,6 +122,11 @@ export function useContract() {
         
         // Basic validation checks
         console.log('✅ Basic validation passed - proceeding with FHE encryption');
+        console.log('⚠️  Note: Contract will validate:');
+        console.log('   - Auction exists (seller != address(0))');
+        console.log('   - Auction is active (isActive = true)');
+        console.log('   - Auction not ended (current time <= endTime)');
+        console.log('   - User is not seller (msg.sender != seller)');
       } catch (error) {
         console.error('❌ Error in debugging setup:', error);
       }
