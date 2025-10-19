@@ -124,13 +124,14 @@ export default function MyBids() {
       console.log('🔍 Starting FHE bid decryption...');
       console.log('📊 Decrypting bid for auction:', auctionId, 'bid index:', bidIndex);
       
-      // Ensure FHE keypair is generated
-      console.log('🔑 Generating FHE keypair if needed...');
+      // Generate keypair synchronously (like aidwell-connect)
+      console.log('🔑 Generating FHE keypair...');
       try {
-        await instance.generateKeypair();
-        console.log('✅ FHE keypair generated/verified');
+        const keypair = instance.generateKeypair();
+        console.log('✅ FHE keypair generated:', keypair);
       } catch (keyError) {
-        console.log('⚠️ Keypair generation failed, but continuing:', keyError);
+        console.log('⚠️ Keypair generation failed:', keyError);
+        // Continue anyway, keypair might already exist
       }
       
       // Get the encrypted bid data from contract
@@ -168,7 +169,7 @@ export default function MyBids() {
         throw new Error('Invalid bid handle - bid may not be encrypted');
       }
       
-      // Decrypt using FHE instance
+      // Decrypt using FHE instance (like aidwell-connect)
       console.log('🔓 Attempting FHE decryption...');
       const result = await instance.userDecrypt(handleContractPairs);
       console.log('🔍 Decryption result:', result);
