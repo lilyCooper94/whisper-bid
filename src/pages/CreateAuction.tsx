@@ -14,9 +14,19 @@ import { Link } from 'react-router-dom';
 
 export default function CreateAuction() {
   const { address, isConnected } = useAccount();
-  const { instance } = useZamaInstance();
+  const { instance, isLoading: fheLoading, error: fheError } = useZamaInstance();
   const { createAuction, loading } = useContract();
   const { toast } = useToast();
+
+  // Debug logging
+  console.log('🔍 CreateAuction Debug:', {
+    isConnected,
+    address,
+    instance: !!instance,
+    fheLoading,
+    fheError,
+    loading
+  });
 
   const [formData, setFormData] = useState({
     title: '',
@@ -52,7 +62,7 @@ export default function CreateAuction() {
     if (!instance) {
       toast({
         title: "Encryption Service Not Available",
-        description: "Please ensure the FHE encryption service is loaded",
+        description: "FHE encryption service is not ready. Please try refreshing the page or check your wallet connection.",
         variant: "destructive",
       });
       return;
@@ -284,16 +294,48 @@ export default function CreateAuction() {
               </div>
             </div>
 
+            {/* Status Information */}
+            <div className="pt-4 border-t">
+              <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                <h4 className="text-sm font-medium">System Status</h4>
+                <div className="text-xs space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span>Wallet Connected:</span>
+                    <span className={isConnected ? "text-green-600" : "text-red-600"}>
+                      {isConnected ? "✅ Yes" : "❌ No"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>FHE Service:</span>
+                    <span className={instance ? "text-green-600" : "text-red-600"}>
+                      {fheLoading ? "⏳ Loading..." : instance ? "✅ Ready" : "❌ Failed"}
+                    </span>
+                  </div>
+                  {fheError && (
+                    <div className="text-red-600 text-xs">
+                      FHE Error: {fheError}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* Submit Button */}
-            <div className="pt-6 border-t">
+            <div className="pt-6">
               <Button
                 type="submit"
                 className="w-full bg-gradient-primary text-primary-foreground shadow-card hover:shadow-glow transition-all duration-300"
-                disabled={loading || !instance}
+                disabled={loading || !instance || !isConnected}
               >
                 <Lock className="w-4 h-4 mr-2" />
                 {loading ? "Creating Encrypted Auction..." : "Create FHE Encrypted Auction"}
               </Button>
+              
+              {(!instance || !isConnected) && (
+                <p className="text-xs text-red-600 text-center mt-2">
+                  {!isConnected ? "Please connect your wallet" : "FHE encryption service is not ready"}
+                </p>
+              )}
               
               <p className="text-xs text-muted-foreground text-center mt-3">
                 🔒 Your auction data will be encrypted using Fully Homomorphic Encryption
