@@ -60,6 +60,24 @@ export default function CreateAuction() {
     }
 
     if (!instance) {
+      if (fheLoading) {
+        toast({
+          title: "Please Wait",
+          description: "FHE encryption service is initializing...",
+          variant: "default",
+        });
+        return;
+      }
+      
+      if (fheError) {
+        toast({
+          title: "FHE Service Error",
+          description: `Encryption service failed: ${fheError}. Click to retry.`,
+          variant: "destructive",
+        });
+        return;
+      }
+      
       toast({
         title: "Encryption Service Not Available",
         description: "FHE encryption service is not ready. Please try refreshing the page or check your wallet connection.",
@@ -335,13 +353,32 @@ export default function CreateAuction() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-primary text-primary-foreground shadow-card hover:shadow-glow transition-all duration-300"
-                disabled={loading || !instance || !isConnected}
+                disabled={loading || !instance || !isConnected || fheLoading}
               >
                 <Lock className="w-4 h-4 mr-2" />
-                {loading ? "Creating Encrypted Auction..." : "Create FHE Encrypted Auction"}
+                {loading ? "Creating Encrypted Auction..." : 
+                 fheLoading ? "Initializing FHE..." :
+                 "Create FHE Encrypted Auction"}
               </Button>
               
-              {(!instance || !isConnected) && (
+              {fheError && (
+                <div className="text-center mt-2">
+                  <p className="text-xs text-red-600 mb-2">
+                    FHE encryption service failed: {fheError}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={initializeZama}
+                    className="text-xs"
+                  >
+                    Retry FHE Initialization
+                  </Button>
+                </div>
+              )}
+              
+              {(!instance || !isConnected) && !fheError && (
                 <p className="text-xs text-red-600 text-center mt-2">
                   {!isConnected ? "Please connect your wallet" : "FHE encryption service is not ready"}
                 </p>
