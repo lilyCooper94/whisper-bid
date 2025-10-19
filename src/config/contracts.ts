@@ -1,5 +1,5 @@
 // Contract configuration
-export const CONTRACT_ADDRESS = "0xe123137C1c1fd9d7B7be1E28503C3319460c909c"; // Will be updated after deployment
+export const CONTRACT_ADDRESS = "0xE6f6b1C0Faea0c972Fe6Eb61289878027905382c"; // Updated with madisonG88 deployment
 export const CONTRACT_ABI = [
   {
     "inputs": [],
