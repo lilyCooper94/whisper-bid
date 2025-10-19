@@ -124,6 +124,15 @@ export default function MyBids() {
       console.log('🔍 Starting FHE bid decryption...');
       console.log('📊 Decrypting bid for auction:', auctionId, 'bid index:', bidIndex);
       
+      // Ensure FHE keypair is generated
+      console.log('🔑 Generating FHE keypair if needed...');
+      try {
+        await instance.generateKeypair();
+        console.log('✅ FHE keypair generated/verified');
+      } catch (keyError) {
+        console.log('⚠️ Keypair generation failed, but continuing:', keyError);
+      }
+      
       // Get the encrypted bid data from contract
       const { CONTRACT_ADDRESS, CONTRACT_ABI } = await import('@/config/contracts');
       const { ethers } = await import('ethers');
@@ -151,8 +160,16 @@ export default function MyBids() {
       ];
       
       console.log('🔍 Handle contract pairs:', handleContractPairs);
+      console.log('🔍 Bid amount handle:', bid.amount);
+      console.log('🔍 Contract address:', CONTRACT_ADDRESS);
+      
+      // Check if handle is valid
+      if (!bid.amount || bid.amount === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        throw new Error('Invalid bid handle - bid may not be encrypted');
+      }
       
       // Decrypt using FHE instance
+      console.log('🔓 Attempting FHE decryption...');
       const result = await instance.userDecrypt(handleContractPairs);
       console.log('🔍 Decryption result:', result);
       

@@ -123,6 +123,16 @@ export function useZamaInstance() {
       
       // Only return instance if we successfully created it
       if (zamaInstance) {
+        // Generate keypair for the instance
+        console.log('🔑 Generating FHE keypair...');
+        try {
+          await zamaInstance.generateKeypair();
+          console.log('✅ FHE keypair generated successfully');
+        } catch (keyError) {
+          console.log('⚠️ FHE keypair generation failed:', keyError);
+          // Don't throw error, continue with instance
+        }
+        
         setError(null); // Clear any previous errors
         console.log('🎉 FHE initialization complete!');
         return zamaInstance;
