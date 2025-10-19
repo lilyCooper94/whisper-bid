@@ -23,6 +23,7 @@ export function useZamaInstance() {
 
       // Wait for CDN script to load and debug global objects
       console.log('🔍 Checking for FHE SDK global objects...');
+      console.log('🔍 window.TFHE:', !!(window as any).TFHE);
       console.log('🔍 window.ZamaFHE:', !!(window as any).ZamaFHE);
       console.log('🔍 window.Zama:', !!(window as any).Zama);
       console.log('🔍 window.FHE:', !!(window as any).FHE);
@@ -31,16 +32,16 @@ export function useZamaInstance() {
       
       let attempts = 0;
       while (attempts < 10) {
-        // Check multiple possible global object names
-        if ((window as any).ZamaFHE || (window as any).Zama || (window as any).FHE || (window as any).RelayerSDK) {
+        // Check multiple possible global object names, including TFHE
+        if ((window as any).TFHE || (window as any).ZamaFHE || (window as any).Zama || (window as any).FHE || (window as any).RelayerSDK) {
           break;
         }
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
       }
 
-      // Try to find the correct global object
-      const fheSDK = (window as any).ZamaFHE || (window as any).Zama || (window as any).FHE || (window as any).RelayerSDK;
+      // Try to find the correct global object - TFHE is the correct one!
+      const fheSDK = (window as any).TFHE || (window as any).ZamaFHE || (window as any).Zama || (window as any).FHE || (window as any).RelayerSDK;
       if (!fheSDK) {
         console.error('❌ No FHE SDK global object found. Available objects:', Object.keys(window).filter(key => key.toLowerCase().includes('zama') || key.toLowerCase().includes('fhe')));
         throw new Error('FHE SDK not loaded from CDN. Please refresh the page.');
