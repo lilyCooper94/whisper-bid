@@ -184,10 +184,6 @@ export default function MyBids() {
       );
 
       console.log('🔐 Signing EIP712 data...');
-      if (!window.ethereum) {
-        throw new Error('Ethereum provider not found');
-      }
-      const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
       const signature = await signer.signTypedData(
         eip712.domain,
