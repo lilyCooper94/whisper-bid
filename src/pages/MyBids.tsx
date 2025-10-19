@@ -15,6 +15,7 @@ interface MyBid {
   timestamp: number;
   isRevealed: boolean;
   isWinning: boolean;
+  bidIndex: number; // Add bid index for decryption
 }
 
 export default function MyBids() {
@@ -26,34 +27,82 @@ export default function MyBids() {
   const [loading, setLoading] = useState(true);
   const [decryptedBids, setDecryptedBids] = useState<Record<number, string>>({});
 
-  // Mock data for demonstration
+  // Load real bid data from contract
   useEffect(() => {
     if (!address) return;
     
-    setLoading(true);
-    // Simulate fetching user's bids
-    const mockBids: MyBid[] = [
-      {
-        auctionId: 0,
-        auctionTitle: "Modern Luxury Villa",
-        bidAmount: "2920000", // This would be encrypted in real implementation
-        timestamp: Date.now() - 3600000, // 1 hour ago
-        isRevealed: true,
-        isWinning: true
-      },
-      {
-        auctionId: 1,
-        auctionTitle: "Urban Penthouse", 
-        bidAmount: "1800000",
-        timestamp: Date.now() - 7200000, // 2 hours ago
-        isRevealed: true,
-        isWinning: false
+    const loadMyBids = async () => {
+      setLoading(true);
+      try {
+        console.log('🔍 Loading user bids from contract...');
+        
+        // Get all auctions first
+        const { CONTRACT_ADDRESS, CONTRACT_ABI } = await import('@/config/contracts');
+        const { ethers } = await import('ethers');
+        
+        if (!window.ethereum) {
+          throw new Error('Ethereum provider not found');
+        }
+        
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+        
+        // Get total auction count
+        const auctionCount = await contract.getAuctionCount();
+        console.log('📊 Total auctions:', Number(auctionCount));
+        
+        const userBids: MyBid[] = [];
+        
+        // Check each auction for user's bids
+        for (let auctionId = 0; auctionId < Number(auctionCount); auctionId++) {
+          try {
+            // Get auction info
+            const auctionInfo = await contract.getAuctionInfo(auctionId);
+            const auctionTitle = auctionInfo[0]; // title
+            
+            // Get all bids for this auction
+            const bids = await contract.getAuctionBids(auctionId);
+            console.log(`🔍 Auction ${auctionId} has ${bids.length} bids`);
+            
+            // Find user's bids in this auction
+            for (let bidIndex = 0; bidIndex < bids.length; bidIndex++) {
+              const bid = bids[bidIndex];
+              if (bid.bidder.toLowerCase() === address.toLowerCase()) {
+                console.log(`✅ Found user bid in auction ${auctionId}, bid ${bidIndex}`);
+                
+                userBids.push({
+                  auctionId: auctionId,
+                  auctionTitle: auctionTitle,
+                  bidAmount: "••••••", // Encrypted, will be decrypted on demand
+                  timestamp: Number(bid.timestamp),
+                  isRevealed: false,
+                  isWinning: false, // Will be determined later
+                  bidIndex: bidIndex // Store the bid index for decryption
+                });
+              }
+            }
+          } catch (error) {
+            console.log(`⚠️ Error loading auction ${auctionId}:`, error);
+          }
+        }
+        
+        console.log(`📋 Found ${userBids.length} user bids`);
+        setMyBids(userBids);
+        
+      } catch (error) {
+        console.error('❌ Error loading user bids:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load your bids from the contract",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
-    ];
+    };
     
-    setMyBids(mockBids);
-    setLoading(false);
-  }, [address]);
+    loadMyBids();
+  }, [address, toast]);
 
   const decryptBid = async (auctionId: number, bidIndex: number) => {
     if (!instance || !address) {
@@ -67,20 +116,60 @@ export default function MyBids() {
 
     try {
       console.log('🔍 Starting FHE bid decryption...');
+      console.log('📊 Decrypting bid for auction:', auctionId, 'bid index:', bidIndex);
       
-      // Use the real FHE decryption function
-      const decryptedData = await decryptBidData(auctionId, bidIndex);
+      // Get the encrypted bid data from contract
+      const { CONTRACT_ADDRESS, CONTRACT_ABI } = await import('@/config/contracts');
+      const { ethers } = await import('ethers');
       
-      const decryptedAmount = decryptedData.amount;
-      setDecryptedBids(prev => ({
-        ...prev,
-        [auctionId]: decryptedAmount
-      }));
+      if (!window.ethereum) {
+        throw new Error('Ethereum provider not found');
+      }
       
-      toast({
-        title: "Bid Decrypted",
-        description: `Your bid amount: $${(parseInt(decryptedAmount) / 1000000000000000000000000).toFixed(2)}M`,
-      });
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+      
+      // Get the specific bid
+      const bids = await contract.getAuctionBids(auctionId);
+      const bid = bids[bidIndex];
+      
+      if (!bid) {
+        throw new Error('Bid not found');
+      }
+      
+      console.log('🔍 Bid data:', bid);
+      
+      // Prepare handle for decryption
+      const handleContractPairs = [
+        { handle: bid.amount, contractAddress: CONTRACT_ADDRESS }
+      ];
+      
+      console.log('🔍 Handle contract pairs:', handleContractPairs);
+      
+      // Decrypt using FHE instance
+      const result = await instance.userDecrypt(handleContractPairs);
+      console.log('🔍 Decryption result:', result);
+      
+      const decryptedAmount = result[bid.amount];
+      console.log('🔍 Decrypted amount:', decryptedAmount);
+      
+      if (decryptedAmount) {
+        // Convert from integer back to millions USD
+        const amountInMillions = Number(decryptedAmount) / 100;
+        
+        setDecryptedBids(prev => ({
+          ...prev,
+          [`${auctionId}-${bidIndex}`]: `$${amountInMillions.toFixed(2)}M`
+        }));
+        
+        toast({
+          title: "Bid Decrypted",
+          description: `Your bid amount: $${amountInMillions.toFixed(2)}M`,
+        });
+      } else {
+        throw new Error('Failed to decrypt bid amount');
+      }
+      
     } catch (error) {
       console.error('Error decrypting bid:', error);
       toast({
@@ -161,9 +250,9 @@ export default function MyBids() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">Your Bid:</span>
                   <div className="flex items-center space-x-2">
-                    {decryptedBids[bid.auctionId] ? (
+                    {decryptedBids[`${bid.auctionId}-${bid.bidIndex}`] ? (
                       <span className="font-mono text-lg">
-                        ${parseFloat(decryptedBids[bid.auctionId]).toFixed(2)}M
+                        {decryptedBids[`${bid.auctionId}-${bid.bidIndex}`]}
                       </span>
                     ) : (
                       <span className="font-mono text-lg">••••••</span>
@@ -171,10 +260,10 @@ export default function MyBids() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => decryptBid(bid.auctionId, bid.bidAmount)}
+                      onClick={() => decryptBid(bid.auctionId, bid.bidIndex)}
                       className="h-auto p-1"
                     >
-                      {decryptedBids[bid.auctionId] ? (
+                      {decryptedBids[`${bid.auctionId}-${bid.bidIndex}`] ? (
                         <EyeOff className="w-4 h-4" />
                       ) : (
                         <Eye className="w-4 h-4" />
