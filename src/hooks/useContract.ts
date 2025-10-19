@@ -17,6 +17,10 @@ export function useContract() {
     title: string,
     description: string,
     imageUrl: string,
+    location: string,
+    bedrooms: number,
+    bathrooms: number,
+    squareFeet: number,
     reservePrice: number,
     duration: number
   ) => {
@@ -61,9 +65,12 @@ export function useContract() {
           title,
           description,
           imageUrl,
+          location,
+          bedrooms,
+          bathrooms,
+          squareFeet,
           reservePriceHandle, // FHE encrypted reserve price
           duration,
-          reservePriceHandle, // Handle for validation
           proof
         ],
       });

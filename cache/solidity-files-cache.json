@@ -273,43 +273,6 @@
         "^0.8.24"
       ],
       "artifacts": []
-    },
-    "/Users/nithon/Desktop/Zama/whisper-bid/contracts/WhisperBidSimple.sol": {
-      "lastModificationDate": 1760863953888,
-      "contentHash": "e90bd30b689f2c550a7a51c53e12a22e",
-      "sourceName": "contracts/WhisperBidSimple.sol",
-      "solcConfig": {
-        "version": "0.8.24",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": true,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.24"
-      ],
-      "artifacts": [
-        "WhisperBidSimple"
-      ]
     }
   }
 }

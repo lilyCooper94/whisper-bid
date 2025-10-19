@@ -100,9 +100,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
+        "internalType": "euint32",
         "name": "amount",
-        "type": "uint256"
+        "type": "bytes32"
       },
       {
         "internalType": "address",
@@ -152,14 +152,14 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint256",
+        "internalType": "euint32",
         "name": "reservePrice",
-        "type": "uint256"
+        "type": "bytes32"
       },
       {
-        "internalType": "uint256",
+        "internalType": "euint32",
         "name": "highestBid",
-        "type": "uint256"
+        "type": "bytes32"
       },
       {
         "internalType": "uint256",
@@ -227,9 +227,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "address",
+        "internalType": "eaddress",
         "name": "highestBidder",
-        "type": "address"
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -286,14 +286,19 @@
         "type": "uint32"
       },
       {
-        "internalType": "uint256",
+        "internalType": "externalEuint32",
         "name": "_reservePrice",
-        "type": "uint256"
+        "type": "bytes32"
       },
       {
         "internalType": "uint256",
         "name": "_duration",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_inputProof",
+        "type": "bytes"
       }
     ],
     "name": "createAuction",
@@ -338,9 +343,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
+            "internalType": "euint32",
             "name": "amount",
-            "type": "uint256"
+            "type": "bytes32"
           },
           {
             "internalType": "address",
@@ -358,7 +363,7 @@
             "type": "bool"
           }
         ],
-        "internalType": "struct WhisperBidSimple.Bid[]",
+        "internalType": "struct WhisperBidBasic.Bid[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -530,11 +535,39 @@
         "internalType": "uint256",
         "name": "auctionId",
         "type": "uint256"
+      },
+      {
+        "internalType": "externalEuint32",
+        "name": "_bidAmount",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "externalEaddress",
+        "name": "_bidder",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes",
+        "name": "_inputProof",
+        "type": "bytes"
       }
     ],
     "name": "placeBid",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "protocolId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   }
 ]

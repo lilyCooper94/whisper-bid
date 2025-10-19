@@ -24,27 +24,35 @@ export const Header = () => {
           </div>
         </Link>
 
-        <nav className="hidden md:flex items-center space-x-6">
-          <Link to="/">
-            <Button 
-              variant={location.pathname === "/" ? "default" : "ghost"} 
-              className="text-sm font-medium"
-            >
-              Marketplace
-            </Button>
-          </Link>
-          <Link to="/my-bids">
-            <Button 
-              variant={location.pathname === "/my-bids" ? "default" : "ghost"} 
-              className="text-sm font-medium"
-            >
-              My Bids
-            </Button>
-          </Link>
-          <Button variant="ghost" className="text-sm font-medium">
-            How It Works
-          </Button>
-        </nav>
+                <nav className="hidden md:flex items-center space-x-6">
+                  <Link to="/">
+                    <Button 
+                      variant={location.pathname === "/" ? "default" : "ghost"} 
+                      className="text-sm font-medium"
+                    >
+                      Marketplace
+                    </Button>
+                  </Link>
+                  <Link to="/create">
+                    <Button 
+                      variant={location.pathname === "/create" ? "default" : "ghost"} 
+                      className="text-sm font-medium"
+                    >
+                      Create Auction
+                    </Button>
+                  </Link>
+                  <Link to="/my-bids">
+                    <Button 
+                      variant={location.pathname === "/my-bids" ? "default" : "ghost"} 
+                      className="text-sm font-medium"
+                    >
+                      My Bids
+                    </Button>
+                  </Link>
+                  <Button variant="ghost" className="text-sm font-medium">
+                    How It Works
+                  </Button>
+                </nav>
 
         <WalletConnect />
       </div>
