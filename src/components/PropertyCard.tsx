@@ -20,6 +20,9 @@ interface PropertyCardProps {
   currentBid?: string;
   bidCount: number;
   timeLeft: string;
+  isActive?: boolean;
+  isEnded?: boolean;
+  seller?: string;
 }
 
 export const PropertyCard = ({
@@ -34,6 +37,9 @@ export const PropertyCard = ({
   currentBid,
   bidCount,
   timeLeft,
+  isActive = true,
+  isEnded = false,
+  seller,
 }: PropertyCardProps) => {
   const [bidAmount, setBidAmount] = useState("");
   const [isEncrypted, setIsEncrypted] = useState(true);
@@ -44,6 +50,25 @@ export const PropertyCard = ({
 
   const handleBidSubmit = async () => {
     if (!bidAmount || !isConnected) return;
+
+    // Check auction status before bidding
+    if (!isActive) {
+      toast({
+        title: "Auction Not Active",
+        description: "This auction is not currently active",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isEnded) {
+      toast({
+        title: "Auction Ended",
+        description: "This auction has already ended",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       const bidAmountNum = parseFloat(bidAmount);

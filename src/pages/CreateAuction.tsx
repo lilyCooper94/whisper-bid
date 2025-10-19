@@ -86,7 +86,7 @@ export default function CreateAuction() {
         formData.imageUrl,
         formData.location,
         parseInt(formData.bedrooms),
-        parseFloat(formData.bathrooms),
+        parseInt(formData.bathrooms), // Convert to integer for uint8
         parseInt(formData.squareFeet),
         reservePriceMillions,
         durationSeconds
@@ -220,6 +220,7 @@ export default function CreateAuction() {
                     id="bedrooms"
                     type="number"
                     min="1"
+                    max="255"
                     value={formData.bedrooms}
                     onChange={(e) => handleInputChange('bedrooms', e.target.value)}
                     placeholder="4"
@@ -233,7 +234,7 @@ export default function CreateAuction() {
                     id="bathrooms"
                     type="number"
                     min="1"
-                    step="0.5"
+                    max="255"
                     value={formData.bathrooms}
                     onChange={(e) => handleInputChange('bathrooms', e.target.value)}
                     placeholder="3"
@@ -247,6 +248,7 @@ export default function CreateAuction() {
                     id="squareFeet"
                     type="number"
                     min="1"
+                    max="4294967295"
                     value={formData.squareFeet}
                     onChange={(e) => handleInputChange('squareFeet', e.target.value)}
                     placeholder="3200"
