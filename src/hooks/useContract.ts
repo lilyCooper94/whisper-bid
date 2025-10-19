@@ -64,12 +64,8 @@ export function useContract() {
           .map(b => b.toString(16).padStart(2, '0'))
           .join('')}`;
         // Ensure exactly 32 bytes (66 characters including 0x)
-        if (hex.length < 66) {
-          return hex.padEnd(66, '0');
-        } else if (hex.length > 66) {
-          return hex.substring(0, 66);
-        }
-        return hex;
+        // Pad with zeros to make it exactly 32 bytes
+        return hex.padEnd(66, '0');
       };
 
       const reservePriceHandle = convertToBytes32(encryptedInput.handles[0]);
@@ -143,18 +139,19 @@ export function useContract() {
           .map(b => b.toString(16).padStart(2, '0'))
           .join('')}`;
         // Ensure exactly 32 bytes (66 characters including 0x)
-        if (hex.length < 66) {
-          return hex.padEnd(66, '0');
-        } else if (hex.length > 66) {
-          return hex.substring(0, 66);
-        }
-        return hex;
+        // Pad with zeros to make it exactly 32 bytes
+        return hex.padEnd(66, '0');
       };
 
       const bidAmountHandle = convertToBytes32(encryptedInput.handles[0]);
       const bidderHandle = convertToBytes32(encryptedInput.handles[1]);
       const proof = `0x${Array.from(encryptedInput.inputProof as Uint8Array)
         .map(b => b.toString(16).padStart(2, '0')).join('')}`;
+
+      console.log('🔍 FHE Handle Debug Info:');
+      console.log('📊 Bid amount handle:', bidAmountHandle, 'Length:', (bidAmountHandle.length - 2) / 2, 'bytes');
+      console.log('📊 Bidder handle:', bidderHandle, 'Length:', (bidderHandle.length - 2) / 2, 'bytes');
+      console.log('📊 Proof length:', (proof.length - 2) / 2, 'bytes');
 
       console.log('🔄 Calling contract with FHE encrypted bid...');
       const result = await writeContractAsync({
