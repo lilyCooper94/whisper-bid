@@ -143,6 +143,25 @@ export function useContract() {
             console.log('   2. Auction active:', auctionData[10]);
             console.log('   3. Time check:', Math.floor(Date.now() / 1000) <= Number(auctionData[15]));
             console.log('   4. User not seller:', address !== auctionData[12]);
+            
+            // Check if auction exists at all
+            if (auctionData[12] === '0x0000000000000000000000000000000000000000') {
+              console.log('❌ PROBLEM: Auction ID 0 does not exist!');
+              console.log('💡 SOLUTION: Please create an auction first using the "Create Auction" button');
+              
+              // Try to get total auction count
+              try {
+                const totalAuctions = await contract.getAuctionCount();
+                console.log('📊 Total auctions in contract:', Number(totalAuctions));
+                if (Number(totalAuctions) === 0) {
+                  console.log('⚠️  No auctions exist in this contract. Please create one first.');
+                } else {
+                  console.log('💡 Try using auction ID:', Number(totalAuctions) - 1);
+                }
+              } catch (error) {
+                console.log('⚠️  Cannot get auction count:', error.message);
+              }
+            }
           }
         } catch (error) {
           console.log('⚠️  Cannot fetch auction data:', error.message);
