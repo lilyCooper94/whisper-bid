@@ -17,7 +17,7 @@ interface MyBid {
   isWinning: boolean;
 }
 
-export function MyBids() {
+export default function MyBids() {
   const { address } = useAccount();
   const { instance } = useZamaInstance();
   const { decryptBidData } = useContract();

@@ -11,7 +11,7 @@ async function main() {
   console.log("Initializing auctions with sample data...");
 
   // Get the deployed contract
-  const contractAddress = "0xE6f6b1C0Faea0c972Fe6Eb61289878027905382c";
+  const contractAddress = "0x20C0846A440fcbdF4C5094b50213E8Bbc65A1A96";
   const WhisperBidBasic = await ethers.getContractFactory("WhisperBidBasic");
   const contract = WhisperBidBasic.attach(contractAddress);
 
