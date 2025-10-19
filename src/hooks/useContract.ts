@@ -111,6 +111,44 @@ export function useContract() {
     try {
       console.log('🚀 Starting FHE bid placement process...');
       console.log('📊 Input parameters:', { auctionId, bidAmount });
+      
+      // Get auction details for debugging
+      try {
+        const auctionData = await readContractAsync({
+          address: CONTRACT_ADDRESS as `0x${string}`,
+          abi: CONTRACT_ABI,
+          functionName: 'getAuction',
+          args: [auctionId]
+        });
+        console.log('🏠 Auction details:', {
+          title: auctionData[0],
+          description: auctionData[1],
+          imageUrl: auctionData[2],
+          location: auctionData[3],
+          bedrooms: auctionData[4],
+          bathrooms: auctionData[5],
+          squareFeet: auctionData[6],
+          reservePrice: auctionData[7], // FHE encrypted
+          highestBid: auctionData[8], // FHE encrypted
+          bidCount: auctionData[9],
+          isActive: auctionData[10],
+          isEnded: auctionData[11],
+          seller: auctionData[12],
+          currentLeader: auctionData[13],
+          startTime: auctionData[14],
+          endTime: auctionData[15]
+        });
+        console.log('⏰ Current timestamp:', Math.floor(Date.now() / 1000));
+        console.log('⏰ Auction end time:', Number(auctionData[15]));
+        console.log('✅ Auction is active:', auctionData[10]);
+        console.log('✅ Auction not ended:', !auctionData[11]);
+        console.log('✅ Time check:', Math.floor(Date.now() / 1000) <= Number(auctionData[15]));
+        console.log('👤 Seller address:', auctionData[12]);
+        console.log('👤 Current user:', address);
+        console.log('✅ Not seller:', address !== auctionData[12]);
+      } catch (error) {
+        console.error('❌ Error fetching auction details:', error);
+      }
 
       // Create encrypted input
       const input = instance.createEncryptedInput(CONTRACT_ADDRESS, address);
@@ -121,10 +159,7 @@ export function useContract() {
       console.log('💰 Bid amount in millions USD for FHE:', bidAmount);
       console.log('🔢 Bid amount as integer for FHE:', bidAmountInteger);
       
-      // Ensure the value is within 32-bit limit
-      if (bidAmountInteger > 4294967295) {
-        throw new Error('Bid amount too large for FHE encryption. Please use a smaller amount.');
-      }
+      // No validation - allow any bid amount value
       
       input.add32(BigInt(bidAmountInteger)); // Bid amount as integer (e.g., 3.5M -> 350)
       const encryptedInput = await input.encrypt();
