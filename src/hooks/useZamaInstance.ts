@@ -48,9 +48,31 @@ export function useZamaInstance() {
       }
 
       console.log('✅ Found FHE SDK global object:', fheSDK);
+      console.log('🔍 TFHE object structure:', Object.keys(fheSDK));
+      console.log('🔍 TFHE.default:', fheSDK.default);
+      console.log('🔍 TFHE.default structure:', fheSDK.default ? Object.keys(fheSDK.default) : 'No default');
 
       console.log('📡 Initializing SDK...');
-      const { createInstance, initSDK, SepoliaConfig } = fheSDK;
+      
+      // TFHE object has a default export that contains the actual functions
+      const tfheDefault = fheSDK.default || fheSDK;
+      console.log('🔍 Using TFHE default:', Object.keys(tfheDefault));
+      
+      // Try to find the correct functions
+      const createInstance = tfheDefault.createInstance || tfheDefault.createInstance;
+      const initSDK = tfheDefault.initSDK || tfheDefault.initSDK;
+      const SepoliaConfig = tfheDefault.SepoliaConfig || tfheDefault.SepoliaConfig;
+      
+      console.log('🔍 Found functions:', {
+        createInstance: !!createInstance,
+        initSDK: !!initSDK,
+        SepoliaConfig: !!SepoliaConfig
+      });
+      
+      if (!initSDK) {
+        throw new Error('initSDK function not found in TFHE object');
+      }
+      
       await initSDK();
 
       const config = {
