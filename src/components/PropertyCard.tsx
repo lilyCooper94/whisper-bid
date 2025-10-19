@@ -56,11 +56,9 @@ export const PropertyCard = ({
         return;
       }
 
-      // Convert to wei for FHE encryption
-      const bidAmountWei = Math.floor(bidAmountNum * 1000000000000000000000000); // Convert to wei
-      
+      // Pass bid amount directly in millions USD for FHE encryption
       console.log('🚀 Submitting FHE encrypted bid...');
-      await placeBid(parseInt(id), bidAmountWei);
+      await placeBid(parseInt(id), bidAmountNum);
 
       toast({
         title: "FHE Encrypted Bid Submitted",

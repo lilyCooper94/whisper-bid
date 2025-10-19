@@ -73,10 +73,10 @@ export default function CreateAuction() {
       console.log('📊 Form data:', formData);
 
       // Convert form data to appropriate types
-      const reservePriceWei = Math.floor(parseFloat(formData.reservePrice) * 1000000000000000000000000); // Convert to wei
+      const reservePriceMillions = parseFloat(formData.reservePrice); // Already in millions USD
       const durationSeconds = parseInt(formData.duration) * 24 * 60 * 60; // Convert days to seconds
 
-      console.log('💰 Reserve price in wei:', reservePriceWei);
+      console.log('💰 Reserve price in millions USD:', reservePriceMillions);
       console.log('⏰ Duration in seconds:', durationSeconds);
 
       // Create auction with FHE encryption
@@ -88,7 +88,7 @@ export default function CreateAuction() {
         parseInt(formData.bedrooms),
         parseFloat(formData.bathrooms),
         parseInt(formData.squareFeet),
-        reservePriceWei,
+        reservePriceMillions,
         durationSeconds
       );
 
