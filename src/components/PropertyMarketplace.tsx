@@ -1,8 +1,8 @@
 import { PropertyCard } from "./PropertyCard";
-import { useAuctions } from "@/hooks/useAuctions";
+import { useContractAuctions } from "@/hooks/useContractAuctions";
 
 export const PropertyMarketplace = () => {
-  const { auctions, loading } = useAuctions();
+  const { auctions, loading } = useContractAuctions();
 
   if (loading) {
     return (
@@ -53,12 +53,26 @@ export const PropertyMarketplace = () => {
             timeLeftStr = `${minutes}m`;
           }
 
-          const location = auction.id === 0 ? "Beverly Hills, CA" : 
-                          auction.id === 1 ? "Manhattan, NY" : "Austin, TX";
-          const beds = auction.id === 0 ? 4 : auction.id === 1 ? 3 : 4;
-          const baths = auction.id === 0 ? 3 : auction.id === 1 ? 2 : 3;
-          const sqft = auction.id === 0 ? "3,200 sq ft" : 
-                      auction.id === 1 ? "2,100 sq ft" : "2,800 sq ft";
+          // Use data from contract instead of hardcoded values
+          const reservePriceInWei = BigInt(auction.reservePrice || "0");
+          const highestBidInWei = BigInt(auction.highestBid || "0");
+          
+          // Convert from wei to millions (assuming 18 decimals)
+          const reservePriceInMillions = Number(reservePriceInWei) / 1000000000000000000000000;
+          const highestBidInMillions = Number(highestBidInWei) / 1000000000000000000000000;
+
+          console.log(`🏠 Auction ${auction.id} data:`, {
+            title: auction.title,
+            location: auction.location,
+            bedrooms: auction.bedrooms,
+            bathrooms: auction.bathrooms,
+            squareFeet: auction.squareFeet,
+            reservePrice: auction.reservePrice,
+            highestBid: auction.highestBid,
+            bidCount: auction.bidCount,
+            reservePriceInMillions,
+            highestBidInMillions
+          });
 
           return (
             <PropertyCard
@@ -66,12 +80,12 @@ export const PropertyMarketplace = () => {
               id={auction.id.toString()}
               image={auction.imageUrl}
               title={auction.title}
-              location={location}
-              price={`$${(parseInt(auction.reservePrice) / 1000000000000000000000000).toFixed(2)}M`}
-              beds={beds}
-              baths={baths}
-              sqft={sqft}
-              currentBid={`$${(parseInt(auction.highestBid) / 1000000000000000000000000).toFixed(2)}M`}
+              location={auction.location}
+              price={`$${reservePriceInMillions.toFixed(2)}M`}
+              beds={auction.bedrooms}
+              baths={auction.bathrooms}
+              sqft={`${auction.squareFeet} sq ft`}
+              currentBid={highestBidInMillions > 0 ? `$${highestBidInMillions.toFixed(2)}M` : undefined}
               bidCount={auction.bidCount}
               timeLeft={timeLeftStr}
             />
