@@ -29,12 +29,17 @@ export default function MyBids() {
 
   // Load real bid data from contract
   useEffect(() => {
-    if (!address) return;
+    if (!address) {
+      setMyBids([]); // Clear bids when no address
+      return;
+    }
     
     const loadMyBids = async () => {
       setLoading(true);
+      setMyBids([]); // Clear previous bids first
       try {
         console.log('🔍 Loading user bids from contract...');
+        console.log('👤 User address:', address);
         
         // Get all auctions first
         const { CONTRACT_ADDRESS, CONTRACT_ABI } = await import('@/config/contracts');
@@ -87,6 +92,7 @@ export default function MyBids() {
         }
         
         console.log(`📋 Found ${userBids.length} user bids`);
+        console.log('🔍 User bids details:', userBids);
         setMyBids(userBids);
         
       } catch (error) {
