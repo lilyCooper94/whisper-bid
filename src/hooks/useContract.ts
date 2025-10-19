@@ -116,13 +116,26 @@ export function useContract() {
     console.log('   - address:', address);
     console.log('   - instance:', !!instance);
     console.log('   - signerPromise:', !!signerPromise);
+    console.log('   - zamaLoading:', zamaLoading);
+    console.log('   - zamaError:', zamaError);
+    console.log('   - isInitialized:', isInitialized);
     
     if (!address) {
       throw new Error('Missing wallet connection - please connect your wallet');
     }
-    if (!instance) {
-      throw new Error('Missing FHE encryption service - please wait for initialization');
+    
+    if (zamaLoading) {
+      throw new Error('FHE encryption service is still initializing - please wait');
     }
+    
+    if (zamaError) {
+      throw new Error(`FHE encryption service failed: ${zamaError}`);
+    }
+    
+    if (!instance || !isInitialized) {
+      throw new Error('FHE encryption service not ready - please refresh the page or retry initialization');
+    }
+    
     if (!signerPromise) {
       throw new Error('Missing signer - please ensure wallet is connected');
     }

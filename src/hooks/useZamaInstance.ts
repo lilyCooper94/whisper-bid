@@ -13,6 +13,8 @@ export function useZamaInstance() {
     try {
       setIsLoading(true);
       setError(null);
+      setInstance(null); // Clear previous instance
+      setIsInitialized(false);
 
       console.log('🔍 Starting FHE SDK initialization...');
 
@@ -32,7 +34,14 @@ export function useZamaInstance() {
         script.src = 'https://unpkg.com/@zama-fhe/relayer-sdk@latest/dist/bundle.js';
         script.onload = async () => {
           console.log('📦 FHE SDK loaded from CDN');
-          await initializeWithSDK();
+          try {
+            await initializeWithSDK();
+          } catch (err) {
+            console.error('❌ Failed to initialize after CDN load:', err);
+            setError(`FHE initialization failed after CDN load: ${err.message}`);
+          } finally {
+            setIsLoading(false);
+          }
         };
         script.onerror = () => {
           console.error('❌ Failed to load FHE SDK from CDN');
@@ -48,6 +57,8 @@ export function useZamaInstance() {
     } catch (err) {
       console.error('❌ Failed to initialize Zama instance:', err);
       setError(`Failed to initialize encryption service: ${err.message}`);
+      setInstance(null);
+      setIsInitialized(false);
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +67,14 @@ export function useZamaInstance() {
   const initializeWithSDK = async () => {
     try {
       console.log('🚀 Initializing FHE SDK...');
-      await initSDK();
+      
+      // Add timeout for initSDK
+      const initPromise = initSDK();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('FHE SDK initialization timeout')), 10000)
+      );
+      
+      await Promise.race([initPromise, timeoutPromise]);
       console.log('✅ FHE SDK initialized');
 
       const config = {
@@ -65,15 +83,31 @@ export function useZamaInstance() {
       };
 
       console.log('🔧 Creating FHE instance with config:', config);
-      const zamaInstance = await createInstance(config);
+      
+      // Add timeout for createInstance
+      const createPromise = createInstance(config);
+      const createTimeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('FHE instance creation timeout')), 15000)
+      );
+      
+      const zamaInstance = await Promise.race([createPromise, createTimeoutPromise]);
       console.log('✅ FHE instance created:', zamaInstance);
       
-      setInstance(zamaInstance);
-      setIsInitialized(true);
-      console.log('🎉 FHE initialization complete!');
+      // Only set instance if we successfully created it
+      if (zamaInstance) {
+        setInstance(zamaInstance);
+        setIsInitialized(true);
+        setError(null); // Clear any previous errors
+        console.log('🎉 FHE initialization complete!');
+      } else {
+        throw new Error('FHE instance creation returned null');
+      }
 
     } catch (err) {
       console.error('❌ Failed to create FHE instance:', err);
+      setError(`FHE initialization failed: ${err.message}`);
+      setInstance(null);
+      setIsInitialized(false);
       throw err;
     }
   };
