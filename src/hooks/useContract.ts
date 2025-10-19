@@ -86,6 +86,8 @@ export function useContract() {
           duration,
           proof
         ],
+        gas: 5000000n, // Set explicit gas limit for FHE operations
+        value: 0n, // No ETH value needed
       });
 
       console.log('✅ Auction creation successful!');
@@ -158,12 +160,21 @@ export function useContract() {
           bidderHandle,    // FHE encrypted bidder address
           proof            // FHE input proof
         ],
+        gas: 5000000n, // Set explicit gas limit for FHE operations
+        value: 0n, // No ETH value needed
       });
 
       console.log('✅ Bid placement successful!');
       return result;
     } catch (error) {
       console.error('❌ Error placing bid:', error);
+      console.error('🔍 Error details:', {
+        name: error?.name,
+        message: error?.message,
+        code: error?.code,
+        reason: error?.reason,
+        data: error?.data
+      });
       throw error;
     } finally {
       setLoading(false);
