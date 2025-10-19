@@ -10,7 +10,6 @@ contract WhisperBidBasic is SepoliaConfig {
     struct Auction {
         uint256 auctionId;           // Public ID
         euint32 reservePrice;         // FHE encrypted reserve price
-        euint32 highestBid;           // FHE encrypted highest bid
         uint256 bidCount;             // Public bid count
         bool isActive;                // Public status
         bool isEnded;                 // Public status
@@ -24,7 +23,6 @@ contract WhisperBidBasic is SepoliaConfig {
         address seller;               // Public seller address
         uint256 startTime;            // Public start time
         uint256 endTime;              // Public end time
-        address currentLeader;        // Public current leader (simplified approach)
     }
     
     struct Bid {
@@ -78,7 +76,6 @@ contract WhisperBidBasic is SepoliaConfig {
         auctions[auctionId] = Auction({
             auctionId: auctionId,
             reservePrice: reservePrice,
-            highestBid: FHE.asEuint32(0), // Initialize with encrypted 0
             bidCount: 0,
             isActive: true,
             isEnded: false,
@@ -91,14 +88,11 @@ contract WhisperBidBasic is SepoliaConfig {
             squareFeet: _squareFeet,
             seller: msg.sender,
             startTime: block.timestamp,
-            endTime: block.timestamp + _duration,
-            currentLeader: address(0) // Initialize with zero address
+            endTime: block.timestamp + _duration
         });
         
         // Set ACL permissions for universal decryption access
         FHE.allow(auctions[auctionId].reservePrice, address(0));
-        FHE.allow(auctions[auctionId].highestBid, address(0));
-        // No need to set permissions for currentLeader as it's a public address
         
         emit AuctionCreated(auctionId, msg.sender, _title);
         return auctionId;
@@ -124,11 +118,7 @@ contract WhisperBidBasic is SepoliaConfig {
         FHE.allow(bidAmount, msg.sender);
         FHE.allow(bidAmount, address(0)); // Allow anyone to decrypt 
         
-        // Use FHE.max to update highest bid (simpler than complex comparison)
-        euint32 newHighest = FHE.max(auctions[auctionId].highestBid, bidAmount);
-        auctions[auctionId].highestBid = newHighest;
-        // Update current leader (simplified approach)
-        auctions[auctionId].currentLeader = msg.sender;
+        // Simple bid recording - no complex calculations
         auctions[auctionId].bidCount++;
         
         // Store the encrypted bid
@@ -164,12 +154,10 @@ contract WhisperBidBasic is SepoliaConfig {
         uint8 bathrooms,
         uint32 squareFeet,
         uint256 reservePrice,
-        uint256 highestBid,
         uint256 bidCount,
         bool isActive,
         bool isEnded,
         address seller,
-        address currentLeader,
         uint256 startTime,
         uint256 endTime
     ) {
@@ -183,12 +171,10 @@ contract WhisperBidBasic is SepoliaConfig {
             auction.bathrooms,
             auction.squareFeet,
             0, // FHE encrypted - will be decrypted off-chain
-            0, // FHE encrypted - will be decrypted off-chain
             auction.bidCount,
             auction.isActive,
             auction.isEnded,
             auction.seller,
-            auction.currentLeader, // Public current leader
             auction.startTime,
             auction.endTime
         );
