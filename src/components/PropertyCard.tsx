@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { MapPin, Bed, Bath, Square, Lock, DollarSign, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useContract } from "@/hooks/useContract";
+import { useAccount } from "wagmi";
 
 interface PropertyCardProps {
   id: string;
@@ -37,17 +39,40 @@ export const PropertyCard = ({
   const [isEncrypted, setIsEncrypted] = useState(true);
   const [showBidForm, setShowBidForm] = useState(false);
   const { toast } = useToast();
+  const { placeBid, loading } = useContract();
+  const { isConnected } = useAccount();
 
-  const handleBidSubmit = () => {
-    if (!bidAmount) return;
+  const handleBidSubmit = async () => {
+    if (!bidAmount || !isConnected) return;
     
-    toast({
-      title: "Encrypted Bid Submitted",
-      description: `Your bid of $${bidAmount} has been encrypted and submitted privately using FHE`,
-    });
-    
-    setBidAmount("");
-    setShowBidForm(false);
+    try {
+      const bidAmountNum = parseFloat(bidAmount);
+      if (isNaN(bidAmountNum) || bidAmountNum <= 0) {
+        toast({
+          title: "Invalid Bid Amount",
+          description: "Please enter a valid bid amount",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      await placeBid(parseInt(id), bidAmountNum);
+      
+      toast({
+        title: "Encrypted Bid Submitted",
+        description: `Your bid of $${bidAmount} has been encrypted and submitted privately using FHE`,
+      });
+      
+      setBidAmount("");
+      setShowBidForm(false);
+    } catch (error) {
+      console.error('Error placing bid:', error);
+      toast({
+        title: "Bid Failed",
+        description: "Failed to place bid. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -123,9 +148,10 @@ export const PropertyCard = ({
             <Button
               onClick={() => setShowBidForm(true)}
               className="w-full bg-gradient-primary text-primary-foreground shadow-card hover:shadow-glow transition-all duration-300"
+              disabled={!isConnected}
             >
               <Lock className="w-4 h-4 mr-2" />
-              Place Encrypted Bid
+              {isConnected ? "Place Encrypted Bid" : "Connect Wallet to Bid"}
             </Button>
           ) : (
             <div className="space-y-3">
@@ -138,6 +164,7 @@ export const PropertyCard = ({
                     value={bidAmount}
                     onChange={(e) => setBidAmount(e.target.value)}
                     className="pl-10"
+                    disabled={loading}
                   />
                 </div>
               </div>
@@ -145,13 +172,14 @@ export const PropertyCard = ({
                 <Button
                   onClick={handleBidSubmit}
                   className="flex-1 bg-gradient-primary text-primary-foreground"
-                  disabled={!bidAmount}
+                  disabled={!bidAmount || loading}
                 >
-                  Submit Encrypted Bid
+                  {loading ? "Encrypting..." : "Submit Encrypted Bid"}
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShowBidForm(false)}
+                  disabled={loading}
                 >
                   Cancel
                 </Button>

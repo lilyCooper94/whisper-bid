@@ -7,12 +7,20 @@ export default defineConfig({
   server: {
     host: "::",
     port: 8080,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp'
+    }
   },
   plugins: [react()],
+  define: { global: 'globalThis' },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+  },
+  optimizeDeps: {
+    include: ['@zama-fhe/relayer-sdk/bundle']
   },
   build: {
     outDir: "dist",
@@ -22,6 +30,7 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom'],
           wallet: ['@rainbow-me/rainbowkit', 'wagmi', 'viem'],
+          fhe: ['@zama-fhe/relayer-sdk'],
         },
       },
     },
