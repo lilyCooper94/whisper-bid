@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/Users/nithon/Desktop/Zama/whisper-bid/contracts/WhisperBidBasic.sol": {
-      "lastModificationDate": 1760868042393,
-      "contentHash": "7ca554122dae852c2251372554db7500",
+      "lastModificationDate": 1760869810918,
+      "contentHash": "d547f61acbf6104718183b6ddd8fdb52",
       "sourceName": "contracts/WhisperBidBasic.sol",
       "solcConfig": {
         "version": "0.8.24",

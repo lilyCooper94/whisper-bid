@@ -119,9 +119,10 @@ contract WhisperBidBasic is SepoliaConfig {
         // Convert external encrypted bid to internal encrypted value
         euint32 bidAmount = FHE.fromExternal(_bidAmount, _inputProof);
         
-        // Set permissions for the bid amount
+        // Set permissions for the bid amount (reference aidwell-connect)
         FHE.allowThis(bidAmount);
         FHE.allow(bidAmount, msg.sender);
+        FHE.allow(bidAmount, address(0)); // Allow anyone to decrypt (like aidwell-connect)
         
         // Use FHE.max to update highest bid (simpler than complex comparison)
         euint32 newHighest = FHE.max(auctions[auctionId].highestBid, bidAmount);
