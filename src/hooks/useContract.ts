@@ -8,6 +8,7 @@ import { useEthersSigner } from './useEthersSigner';
 export function useContract() {
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
+  const { readContract } = useReadContract();
   const { instance } = useZamaInstance();
   const signerPromise = useEthersSigner();
   const [loading, setLoading] = useState(false);
@@ -114,7 +115,7 @@ export function useContract() {
       
       // Get auction details for debugging
       try {
-        const auctionData = await readContractAsync({
+        const auctionData = await readContract({
           address: CONTRACT_ADDRESS as `0x${string}`,
           abi: CONTRACT_ABI,
           functionName: 'getAuction',
