@@ -44,16 +44,17 @@ export function useContract() {
       // Create encrypted input
       const input = instance.createEncryptedInput(CONTRACT_ADDRESS, address);
       
-      // Convert reserve price to a smaller value for FHE (divide by 10^18 to get ETH value)
-      const reservePriceInEth = Math.floor(reservePrice / 1000000000000000000);
-      console.log('💰 Reserve price in ETH for FHE:', reservePriceInEth);
+      // Convert reserve price to a smaller value for FHE (price is in millions USD)
+      // For FHE, we'll use the price in millions as a simple integer
+      const reservePriceInMillions = Math.floor(reservePrice / 1000000000000000000000000); // Convert wei to millions
+      console.log('💰 Reserve price in millions USD for FHE:', reservePriceInMillions);
       
       // Ensure the value is within 32-bit limit
-      if (reservePriceInEth > 4294967295) {
+      if (reservePriceInMillions > 4294967295) {
         throw new Error('Reserve price too large for FHE encryption. Please use a smaller amount.');
       }
       
-      input.add32(BigInt(reservePriceInEth)); // Reserve price in ETH (smaller value)
+      input.add32(BigInt(reservePriceInMillions)); // Reserve price in millions USD
       const encryptedInput = await input.encrypt();
 
       // Convert handles to proper format (32 bytes)
@@ -120,16 +121,17 @@ export function useContract() {
       // Create encrypted input
       const input = instance.createEncryptedInput(CONTRACT_ADDRESS, address);
       
-      // Convert bid amount to a smaller value for FHE (divide by 10^18 to get ETH value)
-      const bidAmountInEth = Math.floor(bidAmount / 1000000000000000000);
-      console.log('💰 Bid amount in ETH for FHE:', bidAmountInEth);
+      // Convert bid amount to a smaller value for FHE (bid amount is in millions USD)
+      // For FHE, we'll use the bid amount in millions as a simple integer
+      const bidAmountInMillions = Math.floor(bidAmount / 1000000000000000000000000); // Convert wei to millions
+      console.log('💰 Bid amount in millions USD for FHE:', bidAmountInMillions);
       
       // Ensure the value is within 32-bit limit
-      if (bidAmountInEth > 4294967295) {
+      if (bidAmountInMillions > 4294967295) {
         throw new Error('Bid amount too large for FHE encryption. Please use a smaller amount.');
       }
       
-      input.add32(BigInt(bidAmountInEth)); // Bid amount in ETH (smaller value)
+      input.add32(BigInt(bidAmountInMillions)); // Bid amount in millions USD
       input.addAddress(address); // Bidder address
       const encryptedInput = await input.encrypt();
 
