@@ -44,16 +44,18 @@ export function useContract() {
       // Create encrypted input
       const input = instance.createEncryptedInput(CONTRACT_ADDRESS, address);
       
-      // For FHE, we'll use the reserve price directly as millions USD (no conversion needed)
-      // The reservePrice parameter is already in millions USD from CreateAuction
+      // For FHE, we need to convert decimal millions to integer for BigInt
+      // Multiply by 100 to convert 2.85M to 285 (representing 2.85M)
+      const reservePriceInteger = Math.floor(reservePrice * 100);
       console.log('💰 Reserve price in millions USD for FHE:', reservePrice);
+      console.log('🔢 Reserve price as integer for FHE:', reservePriceInteger);
       
       // Ensure the value is within 32-bit limit
-      if (reservePrice > 4294967295) {
+      if (reservePriceInteger > 4294967295) {
         throw new Error('Reserve price too large for FHE encryption. Please use a smaller amount.');
       }
       
-      input.add32(BigInt(reservePrice)); // Reserve price in millions USD
+      input.add32(BigInt(reservePriceInteger)); // Reserve price as integer (e.g., 2.85M -> 285)
       const encryptedInput = await input.encrypt();
 
       // Convert handles to proper format (32 bytes)
@@ -120,16 +122,18 @@ export function useContract() {
       // Create encrypted input
       const input = instance.createEncryptedInput(CONTRACT_ADDRESS, address);
       
-      // For FHE, we'll use the bid amount directly as millions USD (no conversion needed)
-      // The bidAmount parameter is already in millions USD from PropertyCard
+      // For FHE, we need to convert decimal millions to integer for BigInt
+      // Multiply by 100 to convert 3.5M to 350 (representing 3.50M)
+      const bidAmountInteger = Math.floor(bidAmount * 100);
       console.log('💰 Bid amount in millions USD for FHE:', bidAmount);
+      console.log('🔢 Bid amount as integer for FHE:', bidAmountInteger);
       
       // Ensure the value is within 32-bit limit
-      if (bidAmount > 4294967295) {
+      if (bidAmountInteger > 4294967295) {
         throw new Error('Bid amount too large for FHE encryption. Please use a smaller amount.');
       }
       
-      input.add32(BigInt(bidAmount)); // Bid amount in millions USD
+      input.add32(BigInt(bidAmountInteger)); // Bid amount as integer (e.g., 3.5M -> 350)
       input.addAddress(address); // Bidder address
       const encryptedInput = await input.encrypt();
 
@@ -259,9 +263,15 @@ export function useContract() {
 
       console.log('🔍 Decryption result:', result);
 
+      // Convert integer values back to decimal millions USD
+      const reservePriceDecimal = result[encryptedData.reservePrice] ? 
+        (Number(result[encryptedData.reservePrice]) / 100).toString() : '0';
+      const highestBidDecimal = result[encryptedData.highestBid] ? 
+        (Number(result[encryptedData.highestBid]) / 100).toString() : '0';
+
       return {
-        reservePrice: result[encryptedData.reservePrice]?.toString() || '0',
-        highestBid: result[encryptedData.highestBid]?.toString() || '0',
+        reservePrice: reservePriceDecimal,
+        highestBid: highestBidDecimal,
         highestBidder: result[encryptedData.highestBidder] || '0x0000000000000000000000000000000000000000',
         bidCount: encryptedData.bidCount?.toString() || '0',
         isActive: encryptedData.isActive,
@@ -336,9 +346,13 @@ export function useContract() {
 
       console.log('🔍 Bid decryption result:', result);
 
+      // Convert integer amount back to decimal millions USD
+      const amountDecimal = result[encryptedData.amount] ? 
+        (Number(result[encryptedData.amount]) / 100).toString() : '0';
+
       return {
         bidId: encryptedData.bidId?.toString() || '0',
-        amount: result[encryptedData.amount]?.toString() || '0',
+        amount: amountDecimal,
         bidder: encryptedData.bidder,
         timestamp: encryptedData.timestamp?.toString() || '0',
         isRevealed: encryptedData.isRevealed
