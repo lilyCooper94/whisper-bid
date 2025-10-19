@@ -267,6 +267,8 @@ export default function CreateAuction() {
                 <Input
                   id="reservePrice"
                   type="number"
+                  min="0"
+                  step="0.1"
                   value={formData.reservePrice}
                   onChange={(e) => handleInputChange('reservePrice', e.target.value)}
                   placeholder="2.85"

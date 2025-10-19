@@ -227,9 +227,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "eaddress",
-        "name": "highestBidder",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "currentLeader",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -461,7 +461,7 @@
       },
       {
         "internalType": "address",
-        "name": "highestBidder",
+        "name": "currentLeader",
         "type": "address"
       },
       {
@@ -539,11 +539,6 @@
       {
         "internalType": "externalEuint32",
         "name": "_bidAmount",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "externalEaddress",
-        "name": "_bidder",
         "type": "bytes32"
       },
       {

@@ -50,7 +50,10 @@ export function useContract() {
       console.log('💰 Reserve price in millions USD for FHE:', reservePrice);
       console.log('🔢 Reserve price as integer for FHE:', reservePriceInteger);
       
-      // No validation - allow any reserve price value
+      // Ensure the value is within 32-bit limit
+      if (reservePriceInteger > 4294967295) {
+        throw new Error('Reserve price too large for FHE encryption. Please use a smaller amount.');
+      }
       
       input.add32(BigInt(reservePriceInteger)); // Reserve price as integer (e.g., 2.85M -> 285)
       const encryptedInput = await input.encrypt();
@@ -86,8 +89,6 @@ export function useContract() {
           duration,
           proof
         ],
-        gas: 5000000n, // Set explicit gas limit for FHE operations
-        value: 0n, // No ETH value needed
       });
 
       console.log('✅ Auction creation successful!');
@@ -123,10 +124,12 @@ export function useContract() {
       console.log('💰 Bid amount in millions USD for FHE:', bidAmount);
       console.log('🔢 Bid amount as integer for FHE:', bidAmountInteger);
       
-      // No validation - allow any bid amount value
+      // Ensure the value is within 32-bit limit
+      if (bidAmountInteger > 4294967295) {
+        throw new Error('Bid amount too large for FHE encryption. Please use a smaller amount.');
+      }
       
       input.add32(BigInt(bidAmountInteger)); // Bid amount as integer (e.g., 3.5M -> 350)
-      input.addAddress(address); // Bidder address
       const encryptedInput = await input.encrypt();
 
       // Convert handles to proper format (32 bytes)
@@ -140,13 +143,11 @@ export function useContract() {
       };
 
       const bidAmountHandle = convertToBytes32(encryptedInput.handles[0]);
-      const bidderHandle = convertToBytes32(encryptedInput.handles[1]);
       const proof = `0x${Array.from(encryptedInput.inputProof as Uint8Array)
         .map(b => b.toString(16).padStart(2, '0')).join('')}`;
 
       console.log('🔍 FHE Handle Debug Info:');
       console.log('📊 Bid amount handle:', bidAmountHandle, 'Length:', (bidAmountHandle.length - 2) / 2, 'bytes');
-      console.log('📊 Bidder handle:', bidderHandle, 'Length:', (bidderHandle.length - 2) / 2, 'bytes');
       console.log('📊 Proof length:', (proof.length - 2) / 2, 'bytes');
 
       console.log('🔄 Calling contract with FHE encrypted bid...');
@@ -157,24 +158,14 @@ export function useContract() {
         args: [
           auctionId,
           bidAmountHandle, // FHE encrypted bid amount
-          bidderHandle,    // FHE encrypted bidder address
           proof            // FHE input proof
         ],
-        gas: 5000000n, // Set explicit gas limit for FHE operations
-        value: 0n, // No ETH value needed
       });
 
       console.log('✅ Bid placement successful!');
       return result;
     } catch (error) {
       console.error('❌ Error placing bid:', error);
-      console.error('🔍 Error details:', {
-        name: error?.name,
-        message: error?.message,
-        code: error?.code,
-        reason: error?.reason,
-        data: error?.data
-      });
       throw error;
     } finally {
       setLoading(false);
