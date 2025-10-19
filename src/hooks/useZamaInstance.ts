@@ -21,22 +21,35 @@ export function useZamaInstance() {
         throw new Error('Ethereum provider not found - please install a wallet');
       }
 
-      // Wait for CDN script to load
+      // Wait for CDN script to load and debug global objects
+      console.log('🔍 Checking for FHE SDK global objects...');
+      console.log('🔍 window.ZamaFHE:', !!(window as any).ZamaFHE);
+      console.log('🔍 window.Zama:', !!(window as any).Zama);
+      console.log('🔍 window.FHE:', !!(window as any).FHE);
+      console.log('🔍 window.RelayerSDK:', !!(window as any).RelayerSDK);
+      console.log('🔍 Available window properties:', Object.keys(window).filter(key => key.toLowerCase().includes('zama') || key.toLowerCase().includes('fhe')));
+      
       let attempts = 0;
       while (attempts < 10) {
-        if ((window as any).ZamaFHE) {
+        // Check multiple possible global object names
+        if ((window as any).ZamaFHE || (window as any).Zama || (window as any).FHE || (window as any).RelayerSDK) {
           break;
         }
         await new Promise(resolve => setTimeout(resolve, 100));
         attempts++;
       }
 
-      if (!(window as any).ZamaFHE) {
+      // Try to find the correct global object
+      const fheSDK = (window as any).ZamaFHE || (window as any).Zama || (window as any).FHE || (window as any).RelayerSDK;
+      if (!fheSDK) {
+        console.error('❌ No FHE SDK global object found. Available objects:', Object.keys(window).filter(key => key.toLowerCase().includes('zama') || key.toLowerCase().includes('fhe')));
         throw new Error('FHE SDK not loaded from CDN. Please refresh the page.');
       }
 
+      console.log('✅ Found FHE SDK global object:', fheSDK);
+
       console.log('📡 Initializing SDK...');
-      const { createInstance, initSDK, SepoliaConfig } = (window as any).ZamaFHE;
+      const { createInstance, initSDK, SepoliaConfig } = fheSDK;
       await initSDK();
 
       const config = {
