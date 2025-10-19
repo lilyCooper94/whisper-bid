@@ -163,7 +163,7 @@ export default function MyBids() {
                   <div className="flex items-center space-x-2">
                     {decryptedBids[bid.auctionId] ? (
                       <span className="font-mono text-lg">
-                        ${(parseInt(decryptedBids[bid.auctionId]) / 1000000).toFixed(2)}M
+                        ${parseFloat(decryptedBids[bid.auctionId]).toFixed(2)}M
                       </span>
                     ) : (
                       <span className="font-mono text-lg">••••••</span>

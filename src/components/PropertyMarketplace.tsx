@@ -53,13 +53,9 @@ export const PropertyMarketplace = () => {
             timeLeftStr = `${minutes}m`;
           }
 
-          // Use data from contract instead of hardcoded values
-          const reservePriceInWei = BigInt(auction.reservePrice || "0");
-          const highestBidInWei = BigInt(auction.highestBid || "0");
-          
-          // Convert from wei to millions (assuming 18 decimals)
-          const reservePriceInMillions = Number(reservePriceInWei) / 1000000000000000000000000;
-          const highestBidInMillions = Number(highestBidInWei) / 1000000000000000000000000;
+          // Use data from contract - prices are already in millions USD
+          const reservePriceInMillions = Number(auction.reservePrice || "0");
+          const highestBidInMillions = Number(auction.highestBid || "0");
 
           console.log(`🏠 Auction ${auction.id} data:`, {
             title: auction.title,

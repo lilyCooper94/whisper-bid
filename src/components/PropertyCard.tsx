@@ -170,12 +170,15 @@ export const PropertyCard = ({
                   <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
                     type="number"
-                    placeholder="Enter bid amount"
+                    placeholder="Enter bid amount (millions USD)"
                     value={bidAmount}
                     onChange={(e) => setBidAmount(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 pr-16"
                     disabled={loading}
                   />
+                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground text-sm">
+                    M
+                  </span>
                 </div>
               </div>
               <div className="flex space-x-2">
