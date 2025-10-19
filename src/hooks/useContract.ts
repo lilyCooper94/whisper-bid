@@ -127,7 +127,7 @@ export function useContract() {
           if (signerPromise) {
             const signer = await signerPromise;
             const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-            const auctionData = await contract.getAuction(auctionId);
+            const auctionData = await contract.getAuctionInfo(auctionId);
             
             console.log('🏠 Auction data from contract:');
             console.log('   📋 Title:', auctionData[0]);
