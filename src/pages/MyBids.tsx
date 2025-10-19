@@ -184,7 +184,6 @@ export default function MyBids() {
       );
 
       console.log('🔐 Signing EIP712 data...');
-      const { ethers } = await import('ethers');
       if (!window.ethereum) {
         throw new Error('Ethereum provider not found');
       }
