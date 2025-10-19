@@ -163,9 +163,7 @@ export function useContract() {
           auctionId,
           bidAmountHandle, // FHE encrypted bid amount
           bidderHandle,    // FHE encrypted bidder address
-          bidAmountHandle, // Handle for validation
-          bidderHandle,    // Handle for validation
-          proof
+          proof            // FHE input proof
         ],
       });
 
