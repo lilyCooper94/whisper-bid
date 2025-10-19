@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 import { useZamaInstance } from '@/hooks/useZamaInstance';
+import { useContract } from '@/hooks/useContract';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +20,7 @@ interface MyBid {
 export function MyBids() {
   const { address } = useAccount();
   const { instance } = useZamaInstance();
+  const { decryptBidData } = useContract();
   const { toast } = useToast();
   const [myBids, setMyBids] = useState<MyBid[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,7 +55,7 @@ export function MyBids() {
     setLoading(false);
   }, [address]);
 
-  const decryptBid = async (auctionId: number, encryptedAmount: string) => {
+  const decryptBid = async (auctionId: number, bidIndex: number) => {
     if (!instance || !address) {
       toast({
         title: "Error",
@@ -64,9 +66,12 @@ export function MyBids() {
     }
 
     try {
-      // In a real implementation, this would decrypt the encrypted bid amount
-      // For now, we'll simulate the decryption
-      const decryptedAmount = encryptedAmount; // This would be the actual decrypted value
+      console.log('🔍 Starting FHE bid decryption...');
+      
+      // Use the real FHE decryption function
+      const decryptedData = await decryptBidData(auctionId, bidIndex);
+      
+      const decryptedAmount = decryptedData.amount;
       setDecryptedBids(prev => ({
         ...prev,
         [auctionId]: decryptedAmount
@@ -74,13 +79,13 @@ export function MyBids() {
       
       toast({
         title: "Bid Decrypted",
-        description: `Your bid amount: $${(parseInt(decryptedAmount) / 1000000).toFixed(2)}M`,
+        description: `Your bid amount: $${(parseInt(decryptedAmount) / 1000000000000000000000000).toFixed(2)}M`,
       });
     } catch (error) {
       console.error('Error decrypting bid:', error);
       toast({
         title: "Decryption Failed",
-        description: "Failed to decrypt bid amount",
+        description: "Failed to decrypt bid amount. Please try again.",
         variant: "destructive",
       });
     }

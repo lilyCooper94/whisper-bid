@@ -157,4 +157,26 @@ contract WhisperBidBasic {
     function getBidCount(uint256 auctionId) public view returns (uint256) {
         return auctionBids[auctionId].length;
     }
+    
+    function getUserBids(address user) public view returns (uint256[] memory) {
+        uint256[] memory userBids = new uint256[](bidCounter);
+        uint256 count = 0;
+        
+        for (uint256 i = 0; i < auctionCounter; i++) {
+            for (uint256 j = 0; j < auctionBids[i].length; j++) {
+                if (auctionBids[i][j].bidder == user) {
+                    userBids[count] = auctionBids[i][j].bidId;
+                    count++;
+                }
+            }
+        }
+        
+        // Resize array to actual count
+        uint256[] memory result = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            result[i] = userBids[i];
+        }
+        
+        return result;
+    }
 }

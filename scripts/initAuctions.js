@@ -22,21 +22,21 @@ async function main() {
       description: "Stunning modern villa with panoramic views in Beverly Hills",
       imageUrl: "https://example.com/property1.jpg",
       reservePrice: ethers.parseEther("2.85"), // $2.85M
-      duration: 3 * 24 * 60 * 60 // 3 days
+      duration: 30 * 24 * 60 * 60 // 30 days
     },
     {
       title: "Urban Penthouse", 
       description: "Luxury penthouse in the heart of Manhattan",
       imageUrl: "https://example.com/property2.jpg",
       reservePrice: ethers.parseEther("1.75"), // $1.75M
-      duration: 5 * 24 * 60 * 60 // 5 days
+      duration: 60 * 24 * 60 * 60 // 60 days
     },
     {
       title: "Suburban Family Home",
       description: "Perfect family home in quiet Austin neighborhood",
       imageUrl: "https://example.com/property3.jpg", 
       reservePrice: ethers.parseEther("0.65"), // $0.65M
-      duration: 7 * 24 * 60 * 60 // 7 days
+      duration: 90 * 24 * 60 * 60 // 90 days
     }
   ];
 

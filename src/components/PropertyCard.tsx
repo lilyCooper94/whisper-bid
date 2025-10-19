@@ -44,7 +44,7 @@ export const PropertyCard = ({
 
   const handleBidSubmit = async () => {
     if (!bidAmount || !isConnected) return;
-    
+
     try {
       const bidAmountNum = parseFloat(bidAmount);
       if (isNaN(bidAmountNum) || bidAmountNum <= 0) {
@@ -56,20 +56,24 @@ export const PropertyCard = ({
         return;
       }
 
-      await placeBid(parseInt(id), bidAmountNum);
+      // Convert to wei for FHE encryption
+      const bidAmountWei = Math.floor(bidAmountNum * 1000000000000000000000000); // Convert to wei
       
+      console.log('🚀 Submitting FHE encrypted bid...');
+      await placeBid(parseInt(id), bidAmountWei);
+
       toast({
-        title: "Encrypted Bid Submitted",
-        description: `Your bid of $${bidAmount} has been encrypted and submitted privately using FHE`,
+        title: "FHE Encrypted Bid Submitted",
+        description: `Your bid of $${bidAmount}M has been encrypted using FHE and submitted privately`,
       });
-      
+
       setBidAmount("");
       setShowBidForm(false);
     } catch (error) {
       console.error('Error placing bid:', error);
       toast({
         title: "Bid Failed",
-        description: "Failed to place bid. Please try again.",
+        description: "Failed to place FHE encrypted bid. Please try again.",
         variant: "destructive",
       });
     }
