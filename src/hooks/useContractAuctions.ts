@@ -120,7 +120,7 @@ export function useContractAuctions() {
       if (auctionInfo) {
         console.log(`✅ Successfully read auction ${i} from contract:`, auctionInfo);
         
-        // Extract data from contract response
+        // Extract data from contract response (simplified contract returns 14 elements)
         const [
           title,
           description,
@@ -130,12 +130,10 @@ export function useContractAuctions() {
           bathrooms,
           squareFeet,
           reservePrice,
-          highestBid,
           bidCount,
           isActive,
           isEnded,
           seller,
-          highestBidder,
           startTime,
           endTime
         ] = auctionInfo as any[];
@@ -150,12 +148,12 @@ export function useContractAuctions() {
           bathrooms: Number(bathrooms) || 0,
           squareFeet: Number(squareFeet) || 0,
           reservePrice: reservePrice?.toString() || "0",
-          highestBid: highestBid?.toString() || "0",
+          highestBid: "0", // No highest bid in simplified contract
           bidCount: Number(bidCount) || 0,
           isActive: Boolean(isActive),
           isEnded: Boolean(isEnded),
           seller: seller || "0x0000000000000000000000000000000000000000",
-          highestBidder: highestBidder || "0x0000000000000000000000000000000000000000",
+          highestBidder: "0x0000000000000000000000000000000000000000", // No highest bidder in simplified contract
           startTime: Number(startTime) || 0,
           endTime: Number(endTime) || 0,
         };
