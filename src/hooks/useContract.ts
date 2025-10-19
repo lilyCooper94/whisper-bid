@@ -24,8 +24,16 @@ export function useContract() {
     reservePrice: number,
     duration: number
   ) => {
+    console.log('🔍 useContract Debug:', {
+      address: !!address,
+      instance: !!instance,
+      signerPromise: !!signerPromise,
+      addressValue: address,
+      signerType: typeof signerPromise
+    });
+
     if (!address || !instance || !signerPromise) {
-      throw new Error('Missing wallet or encryption service');
+      throw new Error(`Missing wallet or encryption service: address=${!!address}, instance=${!!instance}, signer=${!!signerPromise}`);
     }
 
     setLoading(true);

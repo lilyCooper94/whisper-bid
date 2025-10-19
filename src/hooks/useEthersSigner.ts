@@ -1,6 +1,6 @@
 import { useAccount, useWalletClient } from 'wagmi';
 import { useMemo } from 'react';
-import { WalletClient } from 'viem';
+import { BrowserProvider, JsonRpcSigner } from 'ethers';
 
 export function useEthersSigner() {
   const { address } = useAccount();
@@ -9,7 +9,9 @@ export function useEthersSigner() {
   const signerPromise = useMemo(() => {
     if (!walletClient || !address) return undefined;
     
-    return Promise.resolve(walletClient as WalletClient);
+    // Convert walletClient to ethers signer
+    const provider = new BrowserProvider(walletClient.transport);
+    return provider.getSigner();
   }, [walletClient, address]);
 
   return signerPromise;
