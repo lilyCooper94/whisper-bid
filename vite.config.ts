@@ -20,7 +20,8 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['@zama-fhe/relayer-sdk/bundle']
+    include: ['@zama-fhe/relayer-sdk/bundle'],
+    exclude: ['@zama-fhe/relayer-sdk']
   },
   build: {
     outDir: "dist",
