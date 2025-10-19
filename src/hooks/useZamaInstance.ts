@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { createInstance, initSDK, SepoliaConfig } from '@zama-fhe/relayer-sdk/bundle';
 
 export function useZamaInstance() {
   const [instance, setInstance] = useState<any>(null);
@@ -22,7 +21,22 @@ export function useZamaInstance() {
         throw new Error('Ethereum provider not found - please install a wallet');
       }
 
+      // Wait for CDN script to load
+      let attempts = 0;
+      while (attempts < 10) {
+        if ((window as any).ZamaFHE) {
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+
+      if (!(window as any).ZamaFHE) {
+        throw new Error('FHE SDK not loaded from CDN. Please refresh the page.');
+      }
+
       console.log('📡 Initializing SDK...');
+      const { createInstance, initSDK, SepoliaConfig } = (window as any).ZamaFHE;
       await initSDK();
 
       const config = {
