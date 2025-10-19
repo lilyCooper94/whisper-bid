@@ -126,12 +126,13 @@ export default function MyBids() {
       
       // Generate keypair synchronously (like aidwell-connect)
       console.log('🔑 Generating FHE keypair...');
+      let keypair;
       try {
-        const keypair = instance.generateKeypair();
+        keypair = instance.generateKeypair();
         console.log('✅ FHE keypair generated:', keypair);
       } catch (keyError) {
         console.log('⚠️ Keypair generation failed:', keyError);
-        // Continue anyway, keypair might already exist
+        throw new Error('Failed to generate FHE keypair');
       }
       
       // Get the encrypted bid data from contract
@@ -169,9 +170,46 @@ export default function MyBids() {
         throw new Error('Invalid bid handle - bid may not be encrypted');
       }
       
-      // Decrypt using FHE instance (like aidwell-connect)
-      console.log('🔓 Attempting FHE decryption...');
-      const result = await instance.userDecrypt(handleContractPairs);
+      // Create EIP712 signature (like aidwell-connect)
+      console.log('🔐 Creating EIP712 signature...');
+      const startTimeStamp = Math.floor(Date.now() / 1000).toString();
+      const durationDays = '10';
+      const contractAddresses = [CONTRACT_ADDRESS];
+
+      const eip712 = instance.createEIP712(
+        keypair.publicKey,
+        contractAddresses,
+        startTimeStamp,
+        durationDays
+      );
+
+      console.log('🔐 Signing EIP712 data...');
+      const { ethers } = await import('ethers');
+      if (!window.ethereum) {
+        throw new Error('Ethereum provider not found');
+      }
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const signature = await signer.signTypedData(
+        eip712.domain,
+        { UserDecryptRequestVerification: eip712.types.UserDecryptRequestVerification },
+        eip712.message
+      );
+
+      console.log('✅ EIP712 signature created:', signature);
+
+      // Decrypt using FHE instance with full parameters (like aidwell-connect)
+      console.log('🔓 Attempting FHE decryption with EIP712...');
+      const result = await instance.userDecrypt(
+        handleContractPairs,
+        keypair.privateKey,
+        keypair.publicKey,
+        signature.replace('0x', ''),
+        contractAddresses,
+        address,
+        startTimeStamp,
+        durationDays
+      );
       console.log('🔍 Decryption result:', result);
       
       const decryptedAmount = result[bid.amount];
