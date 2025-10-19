@@ -9,9 +9,17 @@ import { ethers } from 'ethers';
 export function useContract() {
   const { address } = useAccount();
   const { writeContractAsync } = useWriteContract();
-  const { instance } = useZamaInstance();
+  const { instance, isLoading: zamaLoading, error: zamaError, isInitialized } = useZamaInstance();
   const signerPromise = useEthersSigner();
   const [loading, setLoading] = useState(false);
+  
+  // Debug Zama instance status
+  console.log('🔍 Zama instance status:', {
+    instance: !!instance,
+    isLoading: zamaLoading,
+    error: zamaError,
+    isInitialized
+  });
 
   // Create auction with FHE encryption
   const createAuction = useCallback(async (
@@ -104,8 +112,19 @@ export function useContract() {
     auctionId: number,
     bidAmount: number
   ) => {
-    if (!address || !instance || !signerPromise) {
-      throw new Error('Missing wallet or encryption service');
+    console.log('🔍 Checking prerequisites for bid placement:');
+    console.log('   - address:', address);
+    console.log('   - instance:', !!instance);
+    console.log('   - signerPromise:', !!signerPromise);
+    
+    if (!address) {
+      throw new Error('Missing wallet connection - please connect your wallet');
+    }
+    if (!instance) {
+      throw new Error('Missing FHE encryption service - please wait for initialization');
+    }
+    if (!signerPromise) {
+      throw new Error('Missing signer - please ensure wallet is connected');
     }
 
     setLoading(true);
