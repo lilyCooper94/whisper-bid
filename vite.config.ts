@@ -6,12 +6,7 @@ import path from "path";
 export default defineConfig({
   server: {
     host: "::",
-    port: 8080,
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp',
-      'Cross-Origin-Resource-Policy': 'cross-origin'
-    }
+    port: 8080
   },
   plugins: [react()],
   resolve: {
@@ -24,6 +19,12 @@ export default defineConfig({
     'process.env': {}
   },
   optimizeDeps: { 
-    include: ['@zama-fhe/relayer-sdk/bundle']
+    include: ['@zama-fhe/relayer-sdk/bundle'],
+    exclude: ['@zama-fhe/relayer-sdk']
+  },
+  build: {
+    rollupOptions: {
+      external: ['@zama-fhe/relayer-sdk/bundle']
+    }
   }
 });
