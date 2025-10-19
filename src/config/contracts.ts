@@ -1,4 +1,4 @@
 // Contract configuration
-export const CONTRACT_ADDRESS = "0xB8f7D1C8e5015928204Bcc47a5Bb2692Cb47309D"; // Contract where auction was actually created
+export const CONTRACT_ADDRESS = "0x8e53D9db1378A52EAa6429aacf05bB5e935dc733"; // Contract where auction was actually created
 import contractABI from './contracts-abi.json';
 export const CONTRACT_ABI = contractABI;

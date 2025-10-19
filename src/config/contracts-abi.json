@@ -157,11 +157,6 @@
         "type": "bytes32"
       },
       {
-        "internalType": "euint32",
-        "name": "highestBid",
-        "type": "bytes32"
-      },
-      {
         "internalType": "uint256",
         "name": "bidCount",
         "type": "uint256"
@@ -225,11 +220,6 @@
         "internalType": "uint256",
         "name": "endTime",
         "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "currentLeader",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -436,11 +426,6 @@
       },
       {
         "internalType": "uint256",
-        "name": "highestBid",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
         "name": "bidCount",
         "type": "uint256"
       },
@@ -457,11 +442,6 @@
       {
         "internalType": "address",
         "name": "seller",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "currentLeader",
         "type": "address"
       },
       {
