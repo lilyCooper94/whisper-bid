@@ -6,7 +6,12 @@ import path from "path";
 export default defineConfig({
   server: {
     host: "::",
-    port: 8080
+    port: 8080,
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Resource-Policy': 'cross-origin'
+    }
   },
   plugins: [react()],
   resolve: {
