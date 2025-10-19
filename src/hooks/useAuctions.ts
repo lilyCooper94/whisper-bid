@@ -59,7 +59,7 @@ export function useAuctions() {
             seller: "0x0000000000000000000000000000000000000000",
             highestBidder: "0x0000000000000000000000000000000000000000",
             startTime: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
-            endTime: Math.floor(Date.now() / 1000) + (i === 0 ? 9900 : i === 1 ? 22320 : 97200), // 2h45m, 6h12m, 1d3h
+            endTime: Math.floor(Date.now() / 1000) + (i === 0 ? 7 * 24 * 60 * 60 : i === 1 ? 10 * 24 * 60 * 60 : 14 * 24 * 60 * 60), // 7d, 10d, 14d
           };
           auctionData.push(mockAuction);
         } catch (error) {
