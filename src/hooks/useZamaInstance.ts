@@ -1,20 +1,42 @@
 import { useState, useEffect } from 'react';
 import { createInstance, initSDK, SepoliaConfig } from '@zama-fhe/relayer-sdk/bundle';
 
+// Global singleton to prevent multiple FHE instances
+let globalFHEInstance: any = null;
+let globalInitializationPromise: Promise<any> | null = null;
+
 export function useZamaInstance() {
-  const [instance, setInstance] = useState<any>(null);
+  const [instance, setInstance] = useState<any>(globalFHEInstance);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(!!globalFHEInstance);
 
   const initializeZama = async () => {
+    // If already initialized globally, use the global instance
+    if (globalFHEInstance) {
+      setInstance(globalFHEInstance);
+      setIsInitialized(true);
+      return;
+    }
+
+    // If already initializing, wait for the existing promise
+    if (globalInitializationPromise) {
+      try {
+        const result = await globalInitializationPromise;
+        setInstance(result);
+        setIsInitialized(true);
+        return;
+      } catch (err) {
+        setError(`FHE initialization failed: ${err.message}`);
+        return;
+      }
+    }
+
     if (isLoading || isInitialized) return;
 
     try {
       setIsLoading(true);
       setError(null);
-      setInstance(null); // Clear previous instance
-      setIsInitialized(false);
 
       console.log('🔍 Starting FHE SDK initialization...');
 
@@ -52,13 +74,19 @@ export function useZamaInstance() {
         return;
       }
 
-      await initializeWithSDK();
+      // Create global initialization promise
+      globalInitializationPromise = initializeWithSDK();
+      const result = await globalInitializationPromise;
+      
+      // Set global instance
+      globalFHEInstance = result;
+      setInstance(result);
+      setIsInitialized(true);
 
     } catch (err) {
       console.error('❌ Failed to initialize Zama instance:', err);
       setError(`Failed to initialize encryption service: ${err.message}`);
-      setInstance(null);
-      setIsInitialized(false);
+      globalInitializationPromise = null;
     } finally {
       setIsLoading(false);
     }
@@ -93,12 +121,11 @@ export function useZamaInstance() {
       const zamaInstance = await Promise.race([createPromise, createTimeoutPromise]);
       console.log('✅ FHE instance created:', zamaInstance);
       
-      // Only set instance if we successfully created it
+      // Only return instance if we successfully created it
       if (zamaInstance) {
-        setInstance(zamaInstance);
-        setIsInitialized(true);
         setError(null); // Clear any previous errors
         console.log('🎉 FHE initialization complete!');
+        return zamaInstance;
       } else {
         throw new Error('FHE instance creation returned null');
       }
@@ -106,8 +133,6 @@ export function useZamaInstance() {
     } catch (err) {
       console.error('❌ Failed to create FHE instance:', err);
       setError(`FHE initialization failed: ${err.message}`);
-      setInstance(null);
-      setIsInitialized(false);
       throw err;
     }
   };
