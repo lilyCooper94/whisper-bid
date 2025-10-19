@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { parseEther } from 'viem';
 import { useZamaInstance } from './useZamaInstance';
 import { useEthersSigner } from './useEthersSigner';
+import { ethers } from 'ethers';
 
 export function useContract() {
   const { address } = useAccount();
@@ -120,13 +121,40 @@ export function useContract() {
         console.log('📋 Auction ID:', auctionId);
         console.log('💰 Bid amount:', bidAmount);
         
+        // Try to get auction data using ethers
+        try {
+          console.log('🔍 Attempting to fetch auction data...');
+          if (signerPromise) {
+            const signer = await signerPromise;
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+            const auctionData = await contract.getAuction(auctionId);
+            
+            console.log('🏠 Auction data from contract:');
+            console.log('   📋 Title:', auctionData[0]);
+            console.log('   👤 Seller:', auctionData[12]);
+            console.log('   ✅ Is Active:', auctionData[10]);
+            console.log('   ⏰ End Time:', Number(auctionData[15]));
+            console.log('   📊 Bid Count:', auctionData[9]);
+            console.log('   🏠 Location:', auctionData[3]);
+            
+            // Check validation conditions
+            console.log('🔍 Validation checks:');
+            console.log('   1. Auction exists:', auctionData[12] !== '0x0000000000000000000000000000000000000000');
+            console.log('   2. Auction active:', auctionData[10]);
+            console.log('   3. Time check:', Math.floor(Date.now() / 1000) <= Number(auctionData[15]));
+            console.log('   4. User not seller:', address !== auctionData[12]);
+          }
+        } catch (error) {
+          console.log('⚠️  Cannot fetch auction data:', error.message);
+        }
+        
         // Basic validation checks
         console.log('✅ Basic validation passed - proceeding with FHE encryption');
-        console.log('⚠️  Note: Contract will validate:');
-        console.log('   - Auction exists (seller != address(0))');
-        console.log('   - Auction is active (isActive = true)');
-        console.log('   - Auction not ended (current time <= endTime)');
-        console.log('   - User is not seller (msg.sender != seller)');
+        console.log('⚠️  Contract will validate these 4 conditions:');
+        console.log('   1. Auction exists: auctions[0].seller != address(0)');
+        console.log('   2. Auction active: auctions[0].isActive == true');
+        console.log('   3. Auction not ended: block.timestamp <= auctions[0].endTime');
+        console.log('   4. User not seller: msg.sender != auctions[0].seller');
       } catch (error) {
         console.error('❌ Error in debugging setup:', error);
       }
