@@ -150,21 +150,21 @@ export function useContract() {
             
             console.log('🏠 Auction data from contract:');
             console.log('   📋 Title:', auctionData[0]);
-            console.log('   👤 Seller:', auctionData[12]);
-            console.log('   ✅ Is Active:', auctionData[10]);
-            console.log('   ⏰ End Time:', Number(auctionData[15]));
-            console.log('   📊 Bid Count:', auctionData[9]);
+            console.log('   👤 Seller:', auctionData[11]); // Updated index for simplified contract
+            console.log('   ✅ Is Active:', auctionData[9]); // Updated index
+            console.log('   ⏰ End Time:', Number(auctionData[13])); // Updated index
+            console.log('   📊 Bid Count:', auctionData[8]); // Updated index
             console.log('   🏠 Location:', auctionData[3]);
             
             // Check validation conditions
             console.log('🔍 Validation checks:');
-            console.log('   1. Auction exists:', auctionData[12] !== '0x0000000000000000000000000000000000000000');
-            console.log('   2. Auction active:', auctionData[10]);
-            console.log('   3. Time check:', Math.floor(Date.now() / 1000) <= Number(auctionData[15]));
-            console.log('   4. User not seller:', address !== auctionData[12]);
+            console.log('   1. Auction exists:', auctionData[11] !== '0x0000000000000000000000000000000000000000');
+            console.log('   2. Auction active:', auctionData[9]);
+            console.log('   3. Time check:', Math.floor(Date.now() / 1000) <= Number(auctionData[13]));
+            console.log('   4. User not seller:', address !== auctionData[11]);
             
             // Check if auction exists at all
-            if (auctionData[12] === '0x0000000000000000000000000000000000000000') {
+            if (auctionData[11] === '0x0000000000000000000000000000000000000000') {
               console.log('❌ PROBLEM: Auction ID 0 does not exist!');
               console.log('💡 SOLUTION: Please create an auction first using the "Create Auction" button');
               
@@ -230,6 +230,13 @@ export function useContract() {
       console.log('📊 Proof length:', (proof.length - 2) / 2, 'bytes');
 
       console.log('🔄 Calling contract with FHE encrypted bid...');
+      console.log('📋 Contract call details:');
+      console.log('   - Address:', CONTRACT_ADDRESS);
+      console.log('   - Function: placeBid');
+      console.log('   - Auction ID:', auctionId);
+      console.log('   - Bid Handle:', bidAmountHandle);
+      console.log('   - Proof Length:', (proof.length - 2) / 2, 'bytes');
+      
       const result = await writeContractAsync({
         address: CONTRACT_ADDRESS as `0x${string}`,
         abi: CONTRACT_ABI,
@@ -242,6 +249,7 @@ export function useContract() {
       });
 
       console.log('✅ Bid placement successful!');
+      console.log('📋 Transaction result:', result);
       return result;
     } catch (error) {
       console.error('❌ Error placing bid:', error);
