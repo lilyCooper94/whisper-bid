@@ -43,7 +43,17 @@ export function useContract() {
 
       // Create encrypted input
       const input = instance.createEncryptedInput(CONTRACT_ADDRESS, address);
-      input.add32(BigInt(reservePrice)); // Reserve price in wei
+      
+      // Convert reserve price to a smaller value for FHE (divide by 10^18 to get ETH value)
+      const reservePriceInEth = Math.floor(reservePrice / 1000000000000000000);
+      console.log('💰 Reserve price in ETH for FHE:', reservePriceInEth);
+      
+      // Ensure the value is within 32-bit limit
+      if (reservePriceInEth > 4294967295) {
+        throw new Error('Reserve price too large for FHE encryption. Please use a smaller amount.');
+      }
+      
+      input.add32(BigInt(reservePriceInEth)); // Reserve price in ETH (smaller value)
       const encryptedInput = await input.encrypt();
 
       // Convert handles to proper format (32 bytes)
@@ -109,7 +119,17 @@ export function useContract() {
 
       // Create encrypted input
       const input = instance.createEncryptedInput(CONTRACT_ADDRESS, address);
-      input.add32(BigInt(bidAmount)); // Bid amount in wei
+      
+      // Convert bid amount to a smaller value for FHE (divide by 10^18 to get ETH value)
+      const bidAmountInEth = Math.floor(bidAmount / 1000000000000000000);
+      console.log('💰 Bid amount in ETH for FHE:', bidAmountInEth);
+      
+      // Ensure the value is within 32-bit limit
+      if (bidAmountInEth > 4294967295) {
+        throw new Error('Bid amount too large for FHE encryption. Please use a smaller amount.');
+      }
+      
+      input.add32(BigInt(bidAmountInEth)); // Bid amount in ETH (smaller value)
       input.addAddress(address); // Bidder address
       const encryptedInput = await input.encrypt();
 
