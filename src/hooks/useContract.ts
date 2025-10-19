@@ -50,10 +50,7 @@ export function useContract() {
       console.log('💰 Reserve price in millions USD for FHE:', reservePrice);
       console.log('🔢 Reserve price as integer for FHE:', reservePriceInteger);
       
-      // Ensure the value is within 32-bit limit
-      if (reservePriceInteger > 4294967295) {
-        throw new Error('Reserve price too large for FHE encryption. Please use a smaller amount.');
-      }
+      // No validation - allow any reserve price value
       
       input.add32(BigInt(reservePriceInteger)); // Reserve price as integer (e.g., 2.85M -> 285)
       const encryptedInput = await input.encrypt();
@@ -124,10 +121,7 @@ export function useContract() {
       console.log('💰 Bid amount in millions USD for FHE:', bidAmount);
       console.log('🔢 Bid amount as integer for FHE:', bidAmountInteger);
       
-      // Ensure the value is within 32-bit limit
-      if (bidAmountInteger > 4294967295) {
-        throw new Error('Bid amount too large for FHE encryption. Please use a smaller amount.');
-      }
+      // No validation - allow any bid amount value
       
       input.add32(BigInt(bidAmountInteger)); // Bid amount as integer (e.g., 3.5M -> 350)
       input.addAddress(address); // Bidder address
