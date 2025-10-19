@@ -8,19 +8,16 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function main() {
-  console.log("🚀 Starting complete deployment and initialization process...");
+  console.log("🚀 Deploying WhisperBidSimple contract...");
 
-  // Step 1: Deploy the contract
-  console.log("\n📦 Deploying WhisperBidBasic contract...");
-  const WhisperBidBasic = await ethers.getContractFactory("WhisperBidBasic");
-  const whisperBid = await WhisperBidBasic.deploy();
+  const WhisperBidSimple = await ethers.getContractFactory("WhisperBidSimple");
+  const whisperBid = await WhisperBidSimple.deploy();
 
   await whisperBid.waitForDeployment();
   const contractAddress = await whisperBid.getAddress();
-  console.log("✅ WhisperBidBasic deployed to:", contractAddress);
+  console.log("✅ WhisperBidSimple deployed to:", contractAddress);
 
-  // Step 2: Update the contract address in the frontend config
-  console.log("\n🔧 Updating frontend configuration...");
+  // Update the contract address in the frontend config
   const contractConfigPath = path.join(__dirname, '../src/config/contracts.ts');
   let contractConfig = fs.readFileSync(contractConfigPath, 'utf8');
   
@@ -30,21 +27,12 @@ async function main() {
     `export const CONTRACT_ADDRESS = "${contractAddress}";`
   );
   
-  // If no existing address found, add it
-  if (!contractConfig.includes(`export const CONTRACT_ADDRESS = "${contractAddress}";`)) {
-    contractConfig = contractConfig.replace(
-      'export const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000";',
-      `export const CONTRACT_ADDRESS = "${contractAddress}";`
-    );
-  }
-  
   fs.writeFileSync(contractConfigPath, contractConfig);
   console.log("✅ Contract address updated in frontend config");
 
-  // Step 3: Initialize auctions with sample data
-  console.log("\n🏠 Initializing auctions with sample data...");
+  // Initialize auctions
+  console.log("\n🏠 Initializing auctions...");
   
-  // Sample auction data matching frontend design with complete asset information
   const auctions = [
     {
       title: "Modern Luxury Villa",
@@ -54,7 +42,7 @@ async function main() {
       bedrooms: 4,
       bathrooms: 3,
       squareFeet: 3200,
-      reservePrice: "2850000000000000000000000", // $2.85M in Wei (2.85 * 10^24)
+      reservePrice: ethers.parseEther("2.85"), // $2.85M
       duration: 7 * 24 * 60 * 60 // 7 days
     },
     {
@@ -65,7 +53,7 @@ async function main() {
       bedrooms: 3,
       bathrooms: 2,
       squareFeet: 2100,
-      reservePrice: "1750000000000000000000000", // $1.75M in Wei (1.75 * 10^24)
+      reservePrice: ethers.parseEther("1.75"), // $1.75M
       duration: 10 * 24 * 60 * 60 // 10 days
     },
     {
@@ -76,19 +64,16 @@ async function main() {
       bedrooms: 4,
       bathrooms: 3,
       squareFeet: 2800,
-      reservePrice: "650000000000000000000000", // $0.65M in Wei (0.65 * 10^24)
+      reservePrice: ethers.parseEther("0.65"), // $0.65M
       duration: 14 * 24 * 60 * 60 // 14 days
     }
   ];
 
-  // Create auctions
   for (let i = 0; i < auctions.length; i++) {
     const auction = auctions[i];
     console.log(`Creating auction ${i + 1}: ${auction.title}`);
     
     try {
-      // Note: This uses empty bytes for FHE proof as a placeholder
-      // In production, proper FHE encryption should be implemented
       const tx = await whisperBid.createAuction(
         auction.title,
         auction.description,
@@ -97,19 +82,18 @@ async function main() {
         auction.bedrooms,
         auction.bathrooms,
         auction.squareFeet,
-        auction.reservePrice, // This should be FHE encrypted in production
-        auction.duration,
-        "0x" // Empty proof placeholder
+        auction.reservePrice,
+        auction.duration
       );
       
       await tx.wait();
       console.log(`✅ Auction ${i + 1} created successfully`);
     } catch (error) {
-      console.error(`❌ Error creating auction ${i + 1}:`, error);
+      console.error(`❌ Error creating auction ${i + 1}:`, error.message);
     }
   }
 
-  console.log("\n🎉 Complete deployment and initialization successful!");
+  console.log("\n🎉 Deployment and initialization complete!");
   console.log(`📋 Contract address: ${contractAddress}`);
   console.log("🏠 All three auctions initialized with extended durations:");
   console.log("   - Modern Luxury Villa: 7 days");

@@ -1,38 +1,33 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import { SepoliaConfig } from "@fhevm/solidity/config/ZamaConfig.sol";
-import { euint32, externalEuint32, euint8, ebool, eaddress, externalEaddress, FHE } from "@fhevm/solidity/lib/FHE.sol";
-
-contract WhisperBidBasic is SepoliaConfig {
-    using FHE for *;
-    
+contract WhisperBidSimple {
     struct Auction {
-        uint256 auctionId;           // Public ID
-        euint32 reservePrice;         // FHE encrypted reserve price
-        euint32 highestBid;           // FHE encrypted highest bid
-        uint256 bidCount;             // Public bid count
-        bool isActive;                // Public status
-        bool isEnded;                 // Public status
-        string title;                 // Public title
-        string description;           // Public description
-        string imageUrl;              // Public image URL
-        string location;              // Public location (e.g., "Beverly Hills, CA")
-        uint8 bedrooms;               // Public bedroom count
-        uint8 bathrooms;              // Public bathroom count
-        uint32 squareFeet;            // Public square footage
-        address seller;               // Public seller address
-        uint256 startTime;            // Public start time
-        uint256 endTime;              // Public end time
-        eaddress highestBidder;       // FHE encrypted highest bidder
+        uint256 auctionId;
+        uint256 reservePrice;
+        uint256 highestBid;
+        uint256 bidCount;
+        bool isActive;
+        bool isEnded;
+        string title;
+        string description;
+        string imageUrl;
+        string location;
+        uint8 bedrooms;
+        uint8 bathrooms;
+        uint32 squareFeet;
+        address seller;
+        uint256 startTime;
+        uint256 endTime;
+        address highestBidder;
     }
     
     struct Bid {
-        uint256 bidId;                // Public bid ID
-        euint32 amount;               // FHE encrypted bid amount
-        address bidder;               // Public bidder address
-        uint256 timestamp;            // Public timestamp
-        bool isRevealed;              // Public reveal status
+        uint256 bidId;
+        uint256 amount;
+        address bidder;
+        uint256 timestamp;
+        bool isRevealed;
     }
     
     mapping(uint256 => Auction) public auctions;
@@ -60,9 +55,8 @@ contract WhisperBidBasic is SepoliaConfig {
         uint8 _bedrooms,
         uint8 _bathrooms,
         uint32 _squareFeet,
-        externalEuint32 _reservePrice,
-        uint256 _duration,
-        bytes calldata _inputProof
+        uint256 _reservePrice,
+        uint256 _duration
     ) public returns (uint256) {
         require(bytes(_title).length > 0, "Auction title cannot be empty");
         require(_duration > 0, "Duration must be positive");
@@ -72,13 +66,10 @@ contract WhisperBidBasic is SepoliaConfig {
         
         uint256 auctionId = auctionCounter++;
         
-        // Convert external encrypted value to internal encrypted value
-        euint32 reservePrice = FHE.fromExternal(_reservePrice, _inputProof);
-        
         auctions[auctionId] = Auction({
             auctionId: auctionId,
-            reservePrice: reservePrice,
-            highestBid: FHE.asEuint32(0), // Initialize with encrypted 0
+            reservePrice: _reservePrice,
+            highestBid: 0,
             bidCount: 0,
             isActive: true,
             isEnded: false,
@@ -92,54 +83,36 @@ contract WhisperBidBasic is SepoliaConfig {
             seller: msg.sender,
             startTime: block.timestamp,
             endTime: block.timestamp + _duration,
-            highestBidder: FHE.asEaddress(address(0)) // Initialize with encrypted zero address
+            highestBidder: address(0)
         });
-        
-        // Set ACL permissions for universal decryption access
-        FHE.allow(auctions[auctionId].reservePrice, address(0));
-        FHE.allow(auctions[auctionId].highestBid, address(0));
-        FHE.allow(auctions[auctionId].highestBidder, address(0));
         
         emit AuctionCreated(auctionId, msg.sender, _title);
         return auctionId;
     }
     
-    function placeBid(
-        uint256 auctionId,
-        externalEuint32 _bidAmount,
-        externalEaddress _bidder,
-        bytes calldata _inputProof
-    ) public {
+    function placeBid(uint256 auctionId) public payable {
         require(auctions[auctionId].seller != address(0), "Auction does not exist");
         require(auctions[auctionId].isActive, "Auction is not active");
         require(block.timestamp <= auctions[auctionId].endTime, "Auction has ended");
         require(msg.sender != auctions[auctionId].seller, "Seller cannot bid");
+        require(msg.value > auctions[auctionId].highestBid, "Bid must be higher than current highest");
+        require(msg.value >= auctions[auctionId].reservePrice, "Bid must meet reserve price");
         
         uint256 bidId = bidCounter++;
         
-        // Convert external encrypted values to internal encrypted values
-        euint32 bidAmount = FHE.fromExternal(_bidAmount, _inputProof);
-        eaddress bidder = FHE.fromExternal(_bidder, _inputProof);
-        
-        // Check if bid is higher than current highest bid (FHE comparison)
-        ebool isHigher = bidAmount.gt(auctions[auctionId].highestBid);
-        
-        // Update highest bid if this bid is higher
-        auctions[auctionId].highestBid = isHigher.select(bidAmount, auctions[auctionId].highestBid);
-        auctions[auctionId].highestBidder = isHigher.select(bidder, auctions[auctionId].highestBidder);
+        // Update highest bid
+        auctions[auctionId].highestBid = msg.value;
+        auctions[auctionId].highestBidder = msg.sender;
         auctions[auctionId].bidCount++;
         
-        // Store the encrypted bid
+        // Store the bid
         auctionBids[auctionId].push(Bid({
             bidId: bidId,
-            amount: bidAmount,
-            bidder: msg.sender, // Public bidder address for identification
+            amount: msg.value,
+            bidder: msg.sender,
             timestamp: block.timestamp,
-            isRevealed: false // Bid amount remains encrypted
+            isRevealed: true
         }));
-        
-        // Set ACL permissions for bid amount decryption
-        FHE.allow(bidAmount, address(0));
         
         emit BidPlaced(auctionId, msg.sender, bidId);
     }
@@ -153,7 +126,7 @@ contract WhisperBidBasic is SepoliaConfig {
         auctions[auctionId].isActive = false;
         auctions[auctionId].isEnded = true;
         
-        emit AuctionEnded(auctionId, address(0), 0); // FHE values will be decrypted off-chain
+        emit AuctionEnded(auctionId, auctions[auctionId].highestBidder, auctions[auctionId].highestBid);
     }
     
     function getAuctionInfo(uint256 auctionId) public view returns (
@@ -183,13 +156,13 @@ contract WhisperBidBasic is SepoliaConfig {
             auction.bedrooms,
             auction.bathrooms,
             auction.squareFeet,
-            0, // FHE encrypted - will be decrypted off-chain
-            0, // FHE encrypted - will be decrypted off-chain
+            auction.reservePrice,
+            auction.highestBid,
             auction.bidCount,
             auction.isActive,
             auction.isEnded,
             auction.seller,
-            address(0), // FHE encrypted - will be decrypted off-chain
+            auction.highestBidder,
             auction.startTime,
             auction.endTime
         );
@@ -228,7 +201,4 @@ contract WhisperBidBasic is SepoliaConfig {
         
         return result;
     }
-    
-    // TODO: FHE Decryption functions will be implemented after fixing FHE syntax
-    // Currently commented out due to getHandle() method compatibility issues
 }

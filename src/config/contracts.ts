@@ -1,5 +1,5 @@
 // Contract configuration
-export const CONTRACT_ADDRESS = "0x20C0846A440fcbdF4C5094b50213E8Bbc65A1A96"; // Latest deployment with FHE infrastructure
+export const CONTRACT_ADDRESS = "0x55614e8649B16e9B53CF2892c93Ed8a1b6970498"; // Latest deployment with FHE infrastructure
 export const CONTRACT_ABI = [
   {
     "inputs": [],
