@@ -9,31 +9,27 @@ export default defineConfig({
     port: 8080,
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp'
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+      'Cross-Origin-Resource-Policy': 'cross-origin'
     }
   },
   plugins: [react()],
-  define: { global: 'globalThis' },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  optimizeDeps: {
+  define: { 
+    global: 'globalThis',
+    'process.env': {}
+  },
+  optimizeDeps: { 
     include: ['@zama-fhe/relayer-sdk/bundle'],
     exclude: ['@zama-fhe/relayer-sdk']
   },
   build: {
-    outDir: "dist",
-    sourcemap: false,
     rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          wallet: ['@rainbow-me/rainbowkit', 'wagmi', 'viem'],
-          fhe: ['@zama-fhe/relayer-sdk'],
-        },
-      },
-    },
-  },
+      external: ['@zama-fhe/relayer-sdk/bundle']
+    }
+  }
 });

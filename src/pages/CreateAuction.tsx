@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom';
 
 export default function CreateAuction() {
   const { address, isConnected } = useAccount();
-  const { instance, isLoading: fheLoading, error: fheError } = useZamaInstance();
+  const { instance, isLoading: fheLoading, error: fheError, initializeZama } = useZamaInstance();
   const { createAuction, loading } = useContract();
   const { toast } = useToast();
 
@@ -315,6 +315,16 @@ export default function CreateAuction() {
                     <div className="text-red-600 text-xs">
                       FHE Error: {fheError}
                     </div>
+                  )}
+                  {fheError && (
+                    <Button
+                      onClick={initializeZama}
+                      variant="outline"
+                      size="sm"
+                      className="mt-2"
+                    >
+                      Retry FHE Initialization
+                    </Button>
                   )}
                 </div>
               </div>
