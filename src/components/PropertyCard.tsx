@@ -86,6 +86,14 @@ export const PropertyCard = ({
           src={image}
           alt={title}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={(e) => {
+            console.error('🖼️ Image load error:', image, e);
+            // Fallback to default image
+            e.currentTarget.src = '/images/property-1.jpg';
+          }}
+          onLoad={() => {
+            console.log('🖼️ Image loaded successfully:', image);
+          }}
         />
         <Badge className="absolute top-3 right-3 bg-accent text-accent-foreground">
           <Lock className="w-3 h-3 mr-1" />

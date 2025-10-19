@@ -2,6 +2,25 @@ import { useReadContract } from 'wagmi';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../config/contracts';
 import { useState, useEffect } from 'react';
 
+// Image mapping for property images
+const imageMapping: Record<string, string> = {
+  '/property-1.jpg': '/images/property-1.jpg',
+  '/property-2.jpg': '/images/property-2.jpg', 
+  '/property-3.jpg': '/images/property-3.jpg',
+  'property-1.jpg': '/images/property-1.jpg',
+  'property-2.jpg': '/images/property-2.jpg',
+  'property-3.jpg': '/images/property-3.jpg',
+};
+
+// Function to get correct image path
+const getImagePath = (imageUrl: string): string => {
+  if (imageMapping[imageUrl]) {
+    return imageMapping[imageUrl];
+  }
+  // Fallback to default property image
+  return '/images/property-1.jpg';
+};
+
 export interface AuctionData {
   id: number;
   title: string;
@@ -125,7 +144,7 @@ export function useContractAuctions() {
           id: i,
           title: title || `Auction ${i}`,
           description: description || `Description for auction ${i}`,
-          imageUrl: imageUrl || `/property-${(i % 3) + 1}.jpg`,
+          imageUrl: getImagePath(imageUrl || `/property-${(i % 3) + 1}.jpg`),
           location: location || `Location ${i}`,
           bedrooms: Number(bedrooms) || 0,
           bathrooms: Number(bathrooms) || 0,
@@ -142,6 +161,7 @@ export function useContractAuctions() {
         };
 
         console.log(`📊 Processed auction ${i}:`, auction);
+        console.log(`🖼️ Image URL for auction ${i}:`, auction.imageUrl);
         auctionData.push(auction);
       } else {
         console.log(`⚠️ No data for auction ${i}`);
