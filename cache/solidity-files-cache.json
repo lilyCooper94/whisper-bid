@@ -127,6 +127,41 @@
         "IKMSVerifier"
       ]
     },
+    "/Users/nithon/Desktop/Zama/whisper-bid/node_modules/@zama-fhe/oracle-solidity/address/ZamaOracleAddress.sol": {
+      "lastModificationDate": 1760859835609,
+      "contentHash": "7d4cce05c3d5e3799454d5a9fba75048",
+      "sourceName": "@zama-fhe/oracle-solidity/address/ZamaOracleAddress.sol",
+      "solcConfig": {
+        "version": "0.8.24",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "viaIR": true,
+          "evmVersion": "paris",
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.24"
+      ],
+      "artifacts": []
+    },
     "/Users/nithon/Desktop/Zama/whisper-bid/node_modules/@fhevm/solidity/lib/Impl.sol": {
       "lastModificationDate": 1760859835750,
       "contentHash": "82d95a375319ded89a84a9323575b351",
@@ -169,10 +204,10 @@
         "Impl"
       ]
     },
-    "/Users/nithon/Desktop/Zama/whisper-bid/node_modules/@zama-fhe/oracle-solidity/address/ZamaOracleAddress.sol": {
-      "lastModificationDate": 1760859835609,
-      "contentHash": "7d4cce05c3d5e3799454d5a9fba75048",
-      "sourceName": "@zama-fhe/oracle-solidity/address/ZamaOracleAddress.sol",
+    "/Users/nithon/Desktop/Zama/whisper-bid/node_modules/@fhevm/solidity/lib/FheType.sol": {
+      "lastModificationDate": 1760859835742,
+      "contentHash": "65f472a3e319ba73ac6b19a5e8660d15",
+      "sourceName": "@fhevm/solidity/lib/FheType.sol",
       "solcConfig": {
         "version": "0.8.24",
         "settings": {
@@ -208,41 +243,6 @@
       "lastModificationDate": 1760859835530,
       "contentHash": "521a624fad71cd29fc4b7c443b41bb86",
       "sourceName": "encrypted-types/EncryptedTypes.sol",
-      "solcConfig": {
-        "version": "0.8.24",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "viaIR": true,
-          "evmVersion": "paris",
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "^0.8.24"
-      ],
-      "artifacts": []
-    },
-    "/Users/nithon/Desktop/Zama/whisper-bid/node_modules/@fhevm/solidity/lib/FheType.sol": {
-      "lastModificationDate": 1760859835742,
-      "contentHash": "65f472a3e319ba73ac6b19a5e8660d15",
-      "sourceName": "@fhevm/solidity/lib/FheType.sol",
       "solcConfig": {
         "version": "0.8.24",
         "settings": {
