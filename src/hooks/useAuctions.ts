@@ -1,16 +1,15 @@
 import { useReadContract } from 'wagmi';
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from '../config/contracts';
 import { useState, useEffect } from 'react';
+import property1 from '@/assets/property-1.jpg';
+import property2 from '@/assets/property-2.jpg';
+import property3 from '@/assets/property-3.jpg';
 
 export interface AuctionData {
   id: number;
   title: string;
   description: string;
   imageUrl: string;
-  location: string;
-  bedrooms: number;
-  bathrooms: number;
-  squareFeet: number;
   reservePrice: string;
   highestBid: string;
   bidCount: number;
@@ -27,75 +26,46 @@ export function useAuctions() {
   const [loading, setLoading] = useState(true);
 
   // Get auction count from contract
-  const { data: auctionCount, isLoading: countLoading, error: countError } = useReadContract({
+  const { data: auctionCount, isLoading: countLoading } = useReadContract({
     address: CONTRACT_ADDRESS as `0x${string}`,
     abi: CONTRACT_ABI,
     functionName: 'auctionCounter',
   });
 
-  console.log('🔍 Contract Debug Info:', {
-    contractAddress: CONTRACT_ADDRESS,
-    auctionCount,
-    countLoading,
-    countError
-  });
-
   // Fetch all auctions from contract
   useEffect(() => {
     const fetchAuctions = async () => {
-      console.log('🚀 Starting auction fetch process...');
-      console.log('📊 Auction count from contract:', auctionCount);
-      console.log('⏳ Count loading:', countLoading);
-      
-      if (!auctionCount || countLoading) {
-        console.log('⏸️ Waiting for auction count...');
-        return;
-      }
+      if (!auctionCount || countLoading) return;
       
       setLoading(true);
       const auctionData: AuctionData[] = [];
       
-      console.log(`📋 Fetching ${Number(auctionCount)} auctions from contract...`);
-      
       for (let i = 0; i < Number(auctionCount); i++) {
         try {
-          console.log(`🔍 Fetching auction ${i} from contract...`);
-          
-          // For now, we need to implement proper contract reading
-          // This is a placeholder that shows we need to read from contract
-          console.log(`⚠️ TODO: Implement contract reading for auction ${i}`);
-          console.log(`📋 Contract address: ${CONTRACT_ADDRESS}`);
-          console.log(`📋 Function: getAuctionInfo(${i})`);
-          
-          // Placeholder data structure - this should be replaced with actual contract data
-          const auction: AuctionData = {
+          // For now, use mock data but with correct structure (no bids yet)
+          const mockAuction: AuctionData = {
             id: i,
-            title: `Auction ${i} (from contract)`,
-            description: `Description for auction ${i} from contract`,
-            imageUrl: `/property-${(i % 3) + 1}.jpg`,
-            location: `Location ${i} from contract`,
-            bedrooms: 0, // From contract
-            bathrooms: 0, // From contract
-            squareFeet: 0, // From contract
-            reservePrice: "0", // From contract
-            highestBid: "0", // From contract
-            bidCount: 0, // From contract
-            isActive: true, // From contract
-            isEnded: false, // From contract
-            seller: "0x0000000000000000000000000000000000000000", // From contract
-            highestBidder: "0x0000000000000000000000000000000000000000", // From contract
-            startTime: 0, // From contract
-            endTime: 0, // From contract
+            title: i === 0 ? "Modern Luxury Villa" : i === 1 ? "Urban Penthouse" : "Suburban Family Home",
+            description: i === 0 ? "Stunning modern villa with panoramic views" : 
+                        i === 1 ? "Luxury penthouse in the heart of Manhattan" : 
+                        "Perfect family home in quiet neighborhood",
+            imageUrl: i === 0 ? property1 : i === 1 ? property2 : property3,
+            reservePrice: i === 0 ? "2850000000000000000000000" : i === 1 ? "1750000000000000000000000" : "650000000000000000000000",
+            highestBid: "0", // No bids yet - this should come from contract
+            bidCount: 0, // No bids yet - this should come from contract
+            isActive: true,
+            isEnded: false,
+            seller: "0x0000000000000000000000000000000000000000",
+            highestBidder: "0x0000000000000000000000000000000000000000",
+            startTime: Math.floor(Date.now() / 1000) - 3600,
+            endTime: Math.floor(Date.now() / 1000) + (i === 0 ? 7 * 24 * 60 * 60 : i === 1 ? 10 * 24 * 60 * 60 : 14 * 24 * 60 * 60),
           };
-          
-          console.log(`✅ Created auction ${i} structure:`, auction);
-          auctionData.push(auction);
+          auctionData.push(mockAuction);
         } catch (error) {
-          console.error(`❌ Error fetching auction ${i}:`, error);
+          console.error(`Error fetching auction ${i}:`, error);
         }
       }
       
-      console.log(`📊 Final auction data:`, auctionData);
       setAuctions(auctionData);
       setLoading(false);
     };
