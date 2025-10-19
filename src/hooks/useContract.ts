@@ -50,10 +50,7 @@ export function useContract() {
       console.log('💰 Reserve price in millions USD for FHE:', reservePrice);
       console.log('🔢 Reserve price as integer for FHE:', reservePriceInteger);
       
-      // Ensure the value is within 32-bit limit
-      if (reservePriceInteger > 4294967295) {
-        throw new Error('Reserve price too large for FHE encryption. Please use a smaller amount.');
-      }
+      // No validation - allow any reserve price value
       
       input.add32(BigInt(reservePriceInteger)); // Reserve price as integer (e.g., 2.85M -> 285)
       const encryptedInput = await input.encrypt();
