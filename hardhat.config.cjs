@@ -1,5 +1,4 @@
 require("@nomicfoundation/hardhat-toolbox");
-require("@fhevm/hardhat-plugin");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -20,8 +19,5 @@ module.exports = {
   },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
-  },
-  fhevm: {
-    network: "sepolia",
   },
 };
